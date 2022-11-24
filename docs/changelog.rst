@@ -1,6 +1,13 @@
 Changelog
 ~~~~~~~~~
 
+0.28.0 (unreleased)
+-------------------
+
+* Updated pytket version requirement to 1.9.
+* Change default optimization level in
+  ``default_compilation_pass()`` to 2.
+
 0.27.0 (October 2022)
 ---------------------
 
