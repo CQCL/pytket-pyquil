@@ -134,7 +134,7 @@ class ForestBackend(Backend):
     def rebase_pass(self) -> BasePass:
         return auto_rebase_pass({OpType.CZ, OpType.Rz, OpType.Rx})
 
-    def default_compilation_pass(self, optimisation_level: int = 1) -> BasePass:
+    def default_compilation_pass(self, optimisation_level: int = 2) -> BasePass:
         assert optimisation_level in range(3)
         passlist = [
             DecomposeBoxes(),
@@ -352,7 +352,7 @@ class ForestStateBackend(Backend):
     def rebase_pass(self) -> BasePass:
         return auto_rebase_pass({OpType.CZ, OpType.Rz, OpType.Rx})
 
-    def default_compilation_pass(self, optimisation_level: int = 1) -> BasePass:
+    def default_compilation_pass(self, optimisation_level: int = 2) -> BasePass:
         assert optimisation_level in range(3)
         passlist = [DecomposeBoxes(), FlattenRegisters()]
         if optimisation_level == 1:
