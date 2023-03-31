@@ -35,12 +35,12 @@ jobs:
       run: |
         docker pull rigetti/quilc
         docker pull rigetti/qvm    
-    - name: Set up Python 3.8
+    - name: Set up Python 3.9
       if: github.event_name == 'push' || github.event_name == 'schedule'
       uses: actions/setup-python@v4
       with:
-        python-version: '3.8'
-    - name: Build and test (3.8)
+        python-version: '3.9'
+    - name: Build and test (3.9)
       if: github.event_name == 'push' || github.event_name == 'schedule'
       shell: bash
       run: |
