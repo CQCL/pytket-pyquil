@@ -1,6 +1,13 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Update pytket version requirement to 1.16.
+* Update pyquil version requirement to 3.5.
+* Drop support for Python 3.8; add support for 3.11.
+
 0.28.0 (November 2022)
 ----------------------
 
