@@ -14,7 +14,7 @@ representations.
 
 ## Getting started
 
-`pytket-pyquil` is available for Python 3.8, 3.9 and 3.10, on Linux, MacOS
+`pytket-pyquil` is available for Python 3.9, 3.10 and 3.11, on Linux, MacOS
 and Windows. To install, run:
 
 ```pip install pytket-pyquil```
