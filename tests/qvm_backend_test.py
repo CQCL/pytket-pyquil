@@ -376,7 +376,7 @@ def test_shots_bits_edgecases(qvm: None, quilc: None) -> None:
             h = forest_backend.process_circuit(c, n_shots)
             res = forest_backend.get_result(h)
 
-            correct_shots = np.zeros((n_shots, n_bits), dtype=int)
+            correct_shots = np.zeros((n_shots, n_bits), dtype=int)  # type: ignore
             correct_shape = (n_shots, n_bits)
             correct_counts = Counter({(0,) * n_bits: n_shots})
             # BackendResult
