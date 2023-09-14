@@ -28,7 +28,7 @@ from pyquil.gates import I
 from pyquil.paulis import ID, PauliSum, PauliTerm
 from pyquil.quilatom import Qubit as Qubit_
 
-from pytket.circuit import Circuit, OpType, Qubit  # type: ignore
+from pytket.circuit import Circuit, OpType, Qubit, Node
 from pytket.backends import (
     Backend,
     CircuitNotRunError,
@@ -41,7 +41,7 @@ from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.resulthandle import _ResultIdTuple
 from pytket.extensions.pyquil._metadata import __extension_version__
-from pytket.passes import (  # type: ignore
+from pytket.passes import (
     BasePass,
     EulerAngleReduction,
     CXMappingPass,
@@ -55,8 +55,8 @@ from pytket.passes import (  # type: ignore
     SimplifyInitial,
     NaivePlacementPass,
 )
-from pytket.pauli import QubitPauliString  # type: ignore
-from pytket.predicates import (  # type: ignore
+from pytket.pauli import QubitPauliString
+from pytket.predicates import (
     NoSymbolsPredicate,
     ConnectivityPredicate,
     GateSetPredicate,
@@ -71,8 +71,8 @@ from pytket.extensions.pyquil.pyquil_convert import (
     get_avg_characterisation,
     tk_to_pyquil,
 )
-from pytket.placement import NoiseAwarePlacement  # type: ignore
-from pytket.architecture import Architecture  # type: ignore
+from pytket.placement import NoiseAwarePlacement
+from pytket.architecture import Architecture
 from pytket.utils import prepare_circuit
 from pytket.utils.operators import QubitPauliOperator
 from pytket.utils.outcomearray import OutcomeArray
@@ -128,7 +128,7 @@ class ForestBackend(Backend):
             NoFastFeedforwardPredicate(),
             NoMidMeasurePredicate(),
             GateSetPredicate(self.backend_info.gate_set),
-            ConnectivityPredicate(self.backend_info.architecture),
+            ConnectivityPredicate(self.backend_info.architecture),  # type: ignore
         ]
 
     def rebase_pass(self) -> BasePass:
@@ -146,17 +146,17 @@ class ForestBackend(Backend):
             passlist.append(FullPeepholeOptimise())
         passlist.append(
             CXMappingPass(
-                self.backend_info.architecture,
+                self.backend_info.architecture,  # type: ignore
                 NoiseAwarePlacement(
-                    self._backend_info.architecture,
-                    self._backend_info.averaged_node_gate_errors,
-                    self._backend_info.averaged_edge_gate_errors,
+                    self._backend_info.architecture,  # type: ignore
+                    self._backend_info.averaged_node_gate_errors,  # type: ignore
+                    self._backend_info.averaged_edge_gate_errors,  # type: ignore
                 ),
                 directed_cx=False,
                 delay_measures=True,
             )
         )
-        passlist.append(NaivePlacementPass(self.backend_info.architecture))
+        passlist.append(NaivePlacementPass(self.backend_info.architecture))  # type: ignore
         if optimisation_level == 2:
             passlist.append(CliffordSimp(False))
         if optimisation_level > 0:
@@ -280,7 +280,7 @@ class ForestBackend(Backend):
         char_dict: dict = process_characterisation(qc)
         arch = char_dict.get("Architecture", Architecture([]))
         node_errors = char_dict.get("NodeErrors")
-        link_errors = char_dict.get("EdgeErrors")
+        link_errors: dict[tuple[Node, Node], float] = char_dict.get("EdgeErrors")  # type: ignore
         averaged_errors = get_avg_characterisation(char_dict)
         return BackendInfo(
             cls.__name__,
@@ -289,9 +289,9 @@ class ForestBackend(Backend):
             arch,
             cls._GATE_SET,
             all_node_gate_errors=node_errors,
-            all_edge_gate_errors=link_errors,
+            all_edge_gate_errors=link_errors,  # type: ignore
             averaged_node_gate_errors=averaged_errors["node_errors"],
-            averaged_edge_gate_errors=averaged_errors["link_errors"],
+            averaged_edge_gate_errors=averaged_errors["link_errors"],  # type: ignore
         )
 
     @classmethod
