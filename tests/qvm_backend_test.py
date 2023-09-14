@@ -31,9 +31,9 @@ from pytket.extensions.pyquil import (
     ForestStateBackend,
     process_characterisation,
 )
-from pytket.circuit import BasisOrder, Circuit, OpType, Qubit, Node  # type: ignore
-from pytket.passes import CliffordSimp  # type: ignore
-from pytket.pauli import Pauli, QubitPauliString  # type: ignore
+from pytket.circuit import BasisOrder, Circuit, OpType, Qubit, Node
+from pytket.passes import CliffordSimp
+from pytket.pauli import Pauli, QubitPauliString
 from pytket.utils.expectations import (
     get_operator_expectation_value,
     get_pauli_expectation_value,
