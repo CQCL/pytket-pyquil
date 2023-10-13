@@ -450,7 +450,7 @@ class ForestStateBackend(Backend):
         """
         prog = tk_to_pyquil(state_circuit)
         pauli_sum = PauliSum(
-            [self._gen_PauliTerm(term, coeff) for term, coeff in operator._dict.items()]
+            [self._gen_PauliTerm(term, coeff) for term, coeff in operator._dict.items()]  # type: ignore
         )
         return complex(self._sim.expectation(prog, pauli_sum))
 

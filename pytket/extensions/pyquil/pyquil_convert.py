@@ -179,7 +179,7 @@ def pyquil_to_tk(prog: Program) -> Circuit:
                 ) from error
             qubits = [qmap[q.index] for q in i.qubits]
             params: list[Union[Expr, float]] = [param_from_pyquil(p) for p in i.params]  # type: ignore
-            tkc.add_gate(optype, params, qubits)  # type: ignore
+            tkc.add_gate(optype, params, qubits)
         elif isinstance(i, Measurement):
             qubit = qmap[i.qubit.index]
             reg = cregmap[i.classical_reg.name]  # type: ignore
