@@ -39,12 +39,12 @@ from pyquil.gates import (
     MEASURE,
 )
 from pyquil.quilbase import Measurement
-from sympy import pi, Symbol  # type: ignore
+from sympy import pi, Symbol
 
-from pytket.circuit import Circuit  # type: ignore
+from pytket.circuit import Circuit
 from pytket.extensions.pyquil import pyquil_to_tk, tk_to_pyquil
 from pytket.extensions.pyquil import ForestStateBackend
-from pytket.passes import RemoveRedundancies  # type: ignore
+from pytket.passes import RemoveRedundancies
 
 skip_qvm_tests = (which("docker") is None) or (platform.system() == "Windows")
 

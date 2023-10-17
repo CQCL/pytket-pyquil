@@ -49,10 +49,10 @@ from pyquil.quilatom import (
     Function as Function_,
 )
 from pyquil.quilbase import Declare, Gate, Halt, Measurement, Pragma
-from sympy import pi, Expr, Symbol, sin, cos, Number, Add, Mul, Pow  # type: ignore
+from sympy import pi, Expr, Symbol, sin, cos, Number, Add, Mul, Pow
 
-from pytket.circuit import Circuit, Node, OpType, Qubit, Bit  # type: ignore
-from pytket.architecture import Architecture  # type: ignore
+from pytket.circuit import Circuit, Node, OpType, Qubit, Bit
+from pytket.architecture import Architecture
 
 _known_quil_gate = {
     "X": OpType.X,
@@ -135,15 +135,15 @@ def param_from_pyquil(p: Union[float, Expression]) -> Expr:
                     + " cannot be converted to a sympy expression"
                 )
         elif isinstance(e, Add_):
-            return to_sympy(e.op1) + to_sympy(e.op2)  # type: ignore
+            return to_sympy(e.op1) + to_sympy(e.op2)
         elif isinstance(e, Sub):
-            return to_sympy(e.op1) - to_sympy(e.op2)  # type: ignore
+            return to_sympy(e.op1) - to_sympy(e.op2)
         elif isinstance(e, Mul_):
-            return to_sympy(e.op1) * to_sympy(e.op2)  # type: ignore
+            return to_sympy(e.op1) * to_sympy(e.op2)
         elif isinstance(e, Div):
-            return to_sympy(e.op1) / to_sympy(e.op2)  # type: ignore
+            return to_sympy(e.op1) / to_sympy(e.op2)
         elif isinstance(e, Pow_):
-            return to_sympy(e.op1) ** to_sympy(e.op2)  # type: ignore
+            return to_sympy(e.op1) ** to_sympy(e.op2)
         else:
             raise NotImplementedError(
                 "Quil expression could not be converted to a sympy expression: "
@@ -165,7 +165,7 @@ def pyquil_to_tk(prog: Program) -> Circuit:
     tkc = Circuit()
     qmap = {}
     for q in prog.get_qubits():
-        uid = Qubit("q", q)
+        uid = Qubit("q", q)  # type: ignore
         tkc.add_qubit(uid)
         qmap.update({q: uid})
     cregmap: Dict = {}
@@ -178,7 +178,7 @@ def pyquil_to_tk(prog: Program) -> Circuit:
                     "Operation not supported by tket: " + str(i)
                 ) from error
             qubits = [qmap[q.index] for q in i.qubits]
-            params = [param_from_pyquil(p) for p in i.params]  # type: ignore
+            params: list[Union[Expr, float]] = [param_from_pyquil(p) for p in i.params]  # type: ignore
             tkc.add_gate(optype, params, qubits)
         elif isinstance(i, Measurement):
             qubit = qmap[i.qubit.index]
@@ -237,10 +237,10 @@ def tk_to_pyquil(
     """
     p = Program()
     qregs = set()
-    for qb in tkcirc.qubits:
-        if len(qb.index) != 1:
+    for qbt in tkcirc.qubits:
+        if len(qbt.index) != 1:
             raise NotImplementedError("PyQuil registers must use a single index")
-        qregs.add(qb.reg_name)
+        qregs.add(qbt.reg_name)
     if len(qregs) > 1:
         raise NotImplementedError(
             "Cannot convert circuit with multiple quantum registers to pyQuil"
@@ -269,24 +269,28 @@ def tk_to_pyquil(
         op = command.op
         optype = op.type
         if optype == OpType.Measure:
-            qb = Qubit_(command.args[0].index[0])
-            if qb in measured_qubits:
+            qbt = Qubit_(command.args[0].index[0])  # type: ignore
+            if qbt in measured_qubits:
                 raise NotImplementedError(
-                    "Cannot apply gate on qubit " + qb.__repr__() + " after measurement"
+                    "Cannot apply gate on qubit "
+                    + qbt.__repr__()
+                    + " after measurement"
                 )
             bit = command.args[1]
-            b = cregmap[bit.reg_name][bit.index[0]]
-            measures.append(Measurement(qb, b))
-            measured_qubits.append(qb)
+            b = cregmap[bit.reg_name][bit.index[0]]  # type: ignore
+            measures.append(Measurement(qbt, b))  # type: ignore
+            measured_qubits.append(qbt)
             used_bits.append(bit)
             continue
         elif optype == OpType.Barrier:
             continue  # pyQuil cannot handle barriers
         qubits = [Qubit_(qb.index[0]) for qb in command.args]
-        for qb in qubits:
-            if qb in measured_qubits:
+        for qbt in qubits:  # type: ignore
+            if qbt in measured_qubits:
                 raise NotImplementedError(
-                    "Cannot apply gate on qubit " + qb.__repr__() + " after measurement"
+                    "Cannot apply gate on qubit "
+                    + qbt.__repr__()
+                    + " after measurement"
                 )
         try:
             gatetype = _known_quil_gate_rev[optype]
@@ -313,7 +317,7 @@ def process_characterisation(qc: QuantumComputer) -> dict:
     :return: A dictionary containing Rigetti device characteristics
     """
     isa = qc.quantum_processor.to_compiler_isa()
-    coupling_map = [[int(i) for i in e.ids] for e in isa.edges.values()]
+    coupling_map = [(int(e.ids[0]), int(e.ids[1])) for e in isa.edges.values()]
 
     str_to_gate_1qb = {
         "RX": {
@@ -395,8 +399,8 @@ def process_characterisation(qc: QuantumComputer) -> dict:
 
     characterisation = dict()
     characterisation["NodeErrors"] = node_errors
-    characterisation["EdgeErrors"] = link_errors
-    characterisation["Architecture"] = arc
+    characterisation["EdgeErrors"] = link_errors  # type: ignore
+    characterisation["Architecture"] = arc  # type: ignore
     characterisation["t1times"] = t1_times_dict
     characterisation["t2times"] = t2_times_dict
 
