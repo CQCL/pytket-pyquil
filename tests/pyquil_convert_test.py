@@ -37,6 +37,7 @@ from pyquil.gates import (
     CPHASE,
     SWAP,
     MEASURE,
+    XY,
 )
 from pyquil.quilbase import Measurement
 from sympy import pi, Symbol
@@ -78,6 +79,7 @@ def get_test_program(measure: bool = False) -> Program:
     p += CCNOT(0, 1, 2)
     p += CPHASE(PI / 4, 2, 1)
     p += SWAP(0, 3)
+    p += XY(PI / 3, 2, 1)
     if measure:
         ro = p.declare("ro", "BIT", 4)
         p += MEASURE(0, ro[0])

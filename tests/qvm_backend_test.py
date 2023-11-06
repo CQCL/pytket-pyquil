@@ -393,6 +393,25 @@ def test_shots_bits_edgecases(qvm: None, quilc: None) -> None:
 @pytest.mark.skipif(
     skip_qvm_tests, reason="Can only run Rigetti QVM if docker is installed"
 )
+def test_gateset(qvm: None, quilc: None) -> None:
+    qc = get_qc("9q-square", as_qvm=True)
+    forest_backend = ForestBackend(qc)
+    a = [Qubit("node", i) for i in range(6)]
+
+    c = Circuit(0, 6)
+    for q in a:
+        c.add_qubit(q)
+    c.ISWAP(0.1, a[5], a[4])
+
+    c.measure_all()
+
+    h = forest_backend.process_circuit(c, 10)
+    forest_backend.get_result(h)
+
+
+@pytest.mark.skipif(
+    skip_qvm_tests, reason="Can only run Rigetti QVM if docker is installed"
+)
 def test_postprocess() -> None:
     qc = get_qc("9q-square", as_qvm=True)
     b = ForestBackend(qc)

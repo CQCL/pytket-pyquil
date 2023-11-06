@@ -1,6 +1,11 @@
 Changelog
 ~~~~~~~~~
 
+0.31.0 (unreleased)
+-------------------
+
+* add pyquil.gates.XY to the native gateset
+
 0.30.0 (October 2023)
 ---------------------
 
