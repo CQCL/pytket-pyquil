@@ -401,9 +401,9 @@ def test_gateset(qvm: None, quilc: None) -> None:
     c = Circuit(0, 6)
     for q in a:
         c.add_qubit(q)
-    c.ISWAP(1, a[5], a[4])
-    c.ISWAP(2, a[5], a[4])
-    c.ISWAP(3, a[5], a[4])
+    c.ISWAP(0.1, a[5], a[4])
+    c.ISWAP(0.2, a[5], a[4])
+    c.ISWAP(0.3, a[5], a[4])
 
     c.measure_all()
 
