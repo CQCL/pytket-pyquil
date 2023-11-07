@@ -109,11 +109,11 @@ class ForestBackend(Backend):
     _supports_contextual_optimisation = True
     _persistent_handles = True
     _GATE_SET = {
-        OpType.CZ,  #
-        OpType.Rx,  #
-        OpType.Rz,  #
-        OpType.Measure,  #
-        OpType.Barrier,  #
+        OpType.CZ,
+        OpType.Rx,
+        OpType.Rz,
+        OpType.Measure,
+        OpType.Barrier,
         OpType.ISWAP,
     }
 
