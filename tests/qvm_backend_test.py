@@ -410,7 +410,7 @@ def test_gateset(qvm: None, quilc: None) -> None:
     h = forest_backend.process_circuit(c, 10)
     res = forest_backend.get_result(h)
 
-    correct_shots = np.zeros((n_shots, 6), dtype=int)  # type: ignore
+    correct_shots = np.zeros((10, 6), dtype=int)  # type: ignore
     correct_shape = (10, 6)
     correct_counts = Counter({(0,) * 6: 10})
 
