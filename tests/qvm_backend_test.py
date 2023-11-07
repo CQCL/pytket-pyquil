@@ -401,12 +401,24 @@ def test_gateset(qvm: None, quilc: None) -> None:
     c = Circuit(0, 6)
     for q in a:
         c.add_qubit(q)
-    c.ISWAP(0.1, a[5], a[4])
+    c.ISWAP(1, a[5], a[4])
+    c.ISWAP(2, a[5], a[4])
+    c.ISWAP(3, a[5], a[4])
 
     c.measure_all()
 
     h = forest_backend.process_circuit(c, 10)
-    forest_backend.get_result(h)
+    res = forest_backend.get_result(h)
+
+    correct_shots = np.zeros((n_shots, 6), dtype=int)  # type: ignore
+    correct_shape = (10, 6)
+    correct_counts = Counter({(0,) * 6: 10})
+
+    assert np.array_equal(res.get_shots(), correct_shots)
+    assert res.get_shots().shape == correct_shape
+    assert res.get_counts() == correct_counts
+
+    assert 1 == 2
 
 
 @pytest.mark.skipif(
