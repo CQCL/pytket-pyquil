@@ -446,6 +446,14 @@ def test_gateset_ii(qvm: None, quilc: None) -> None:
     correct_shots = np.zeros((10, 6), dtype=int)  # type: ignore
     correct_counts = Counter({(0,) * 6: 10})
 
+    print("res.get_shots()")
+
+    print(res.get_shots())
+
+    print("res.get_counts()")
+
+    print(res.get_counts())
+
     assert np.array_equal(res.get_shots(), correct_shots)
     assert res.get_shots().shape == (10, 6)
     assert res.get_counts() == correct_counts
