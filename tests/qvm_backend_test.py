@@ -424,16 +424,15 @@ def test_gateset(qvm: None, quilc: None) -> None:
 def test_gateset_ii(qvm: None, quilc: None) -> None:
     qc = get_qc("9q-square", as_qvm=True)
     forest_backend = ForestBackend(qc)
-    a = [Qubit("node", i) for i in range(6)]
 
+    a = [Qubit("node", i) for i in range(6)]
     c = Circuit(0, 6)
     for q in a:
         c.add_qubit(q)
     c.Rx(1.0, a[5])
-    c.ISWAP(1.0, a[5], a[4])
+    c.ISWAP(0.5, a[5], a[4])
     c.Rx(1.0, a[4])
-    c.ISWAP(1.0, a[5], a[4])
-
+    c.ISWAP(0.5, a[5], a[4])
     c.measure_all()
 
     h = forest_backend.process_circuit(c, 10)
