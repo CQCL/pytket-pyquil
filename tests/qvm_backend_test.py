@@ -401,8 +401,41 @@ def test_gateset(qvm: None, quilc: None) -> None:
     c = Circuit(0, 6)
     for q in a:
         c.add_qubit(q)
+    c.ISWAP(1, a[5], a[4])
+    c.ISWAP(2, a[5], a[4])
+    c.ISWAP(3, a[5], a[4])
+
+    c.measure_all()
+
+    h = forest_backend.process_circuit(c, 10)
+    res = forest_backend.get_result(h)
+
+    correct_shots = np.zeros((10, 6), dtype=int)  # type: ignore
+    correct_counts = Counter({(0,) * 6: 10})
+
+    assert np.array_equal(res.get_shots(), correct_shots)
+    assert res.get_shots().shape == (10, 6)
+    assert res.get_counts() == correct_counts
+
+
+@pytest.mark.skipif(
+    skip_qvm_tests, reason="Can only run Rigetti QVM if docker is installed"
+)
+def test_gateset_ii(qvm: None, quilc: None) -> None:
+    qc = get_qc("9q-square", as_qvm=True)
+    forest_backend = ForestBackend(qc)
+    a = [Qubit("node", i) for i in range(6)]
+
+    c = Circuit(0, 6)
+    for q in a:
+        c.add_qubit(q)
     c.ISWAP(0.1, a[5], a[4])
+    c.Rx(0.4, a[5])
+    c.Rz(0.5, a[4])
     c.ISWAP(0.2, a[5], a[4])
+    c.Rx(0.4, a[5])
+    c.Rz(0.5, a[4])
+
     c.ISWAP(0.3, a[5], a[4])
 
     c.measure_all()
@@ -411,14 +444,11 @@ def test_gateset(qvm: None, quilc: None) -> None:
     res = forest_backend.get_result(h)
 
     correct_shots = np.zeros((10, 6), dtype=int)  # type: ignore
-    correct_shape = (10, 6)
     correct_counts = Counter({(0,) * 6: 10})
 
     assert np.array_equal(res.get_shots(), correct_shots)
-    assert res.get_shots().shape == correct_shape
+    assert res.get_shots().shape == (10, 6)
     assert res.get_counts() == correct_counts
-
-    assert 1 == 2
 
 
 @pytest.mark.skipif(
