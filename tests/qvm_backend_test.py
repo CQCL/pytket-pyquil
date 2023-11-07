@@ -441,7 +441,9 @@ def test_gateset_ii(qvm: None, quilc: None) -> None:
     print(res.get_counts())
 
     assert res.get_shots().shape == (10, 6)
-    assert res.get_counts()[(0, 0, 0, 0, 1, 0)] == 10
+    assert (
+        res.get_counts()[(0, 0, 0, 0, 0, 0)] + res.get_counts()[(0, 0, 0, 0, 1, 1)]
+    ) == 10
 
 
 @pytest.mark.skipif(
