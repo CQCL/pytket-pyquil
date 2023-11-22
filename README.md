@@ -12,7 +12,9 @@ representations.
 `pytket-pyquil` is available for Python 3.9, 3.10 and 3.11, on Linux, MacOS
 and Windows. To install, run:
 
-```pip install pytket-pyquil```
+```shell
+pip install pytket-pyquil
+```
 
 This will install `pytket` if it isn't already installed, and add new classes
 and methods into the `pytket.extensions` namespace.
