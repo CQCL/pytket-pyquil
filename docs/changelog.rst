@@ -1,9 +1,10 @@
 Changelog
 ~~~~~~~~~
 
-0.31.0 (unreleased)
--------------------
+0.31.0 (November 2023)
+----------------------
 
+* Updated pytket version requirement to 1.22.
 * add pyquil.gates.XY to the native gateset
 
 0.30.0 (October 2023)
