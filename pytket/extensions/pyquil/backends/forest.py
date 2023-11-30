@@ -285,7 +285,7 @@ class ForestBackend(Backend):
     @classmethod
     def _get_backend_info(cls, qc: QuantumComputer) -> BackendInfo:
         char_dict: dict = process_characterisation(qc)
-        arch = char_dict.get("Architecture", Architecture([]))
+        arch = char_dict.get("Architecture")
         node_errors = char_dict.get("NodeErrors")
         link_errors: dict[tuple[Node, Node], float] = char_dict.get("EdgeErrors")  # type: ignore
         averaged_errors = get_avg_characterisation(char_dict)
