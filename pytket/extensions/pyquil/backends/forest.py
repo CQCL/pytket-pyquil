@@ -173,9 +173,6 @@ class ForestBackend(Backend):
             passlist.extend(
                 [
                     EulerAngleReduction(OpType.Rx, OpType.Rz),
-                    SimplifyInitial(
-                        allow_classical=False, create_all_qubits=True, xcirc=_xcirc
-                    ),
                 ]
             )
         return SequencePass(passlist)
