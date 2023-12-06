@@ -219,9 +219,10 @@ class ForestBackend(Backend):
                 c0, ppcirc_rep = circuit, None
 
             if simplify_initial:
-                SimplifyInitial(allow_classical=False, create_all_qubits=True).apply(
-                    circuit
-                )
+                _x_circ = Circuit(1).Rx(1, 0)
+                SimplifyInitial(
+                    allow_classical=False, create_all_qubits=True, xcirc=_x_circ
+                ).apply(circuit)
 
             p, bits = tk_to_pyquil(c0, return_used_bits=True)
             p.wrap_in_numshots_loop(n_shots)
