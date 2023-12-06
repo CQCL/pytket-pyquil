@@ -170,10 +170,8 @@ class ForestBackend(Backend):
             passlist.append(SynthesiseTket())
         passlist.append(self.rebase_pass())
         if optimisation_level > 0:
-            passlist.extend(
-                [
-                    EulerAngleReduction(OpType.Rx, OpType.Rz),
-                ]
+            passlist.append(
+                EulerAngleReduction(OpType.Rx, OpType.Rz),
             )
         return SequencePass(passlist)
 
@@ -193,6 +191,7 @@ class ForestBackend(Backend):
 
         Supported kwargs:
 
+        * `seed`
         * `postprocess`: apply end-of-circuit simplifications and classical
           postprocessing to improve fidelity of results (bool, default False)
         * `simplify_initial`: apply the pytket ``SimplifyInitial`` pass to improve
