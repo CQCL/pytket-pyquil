@@ -170,13 +170,8 @@ class ForestBackend(Backend):
             passlist.append(SynthesiseTket())
         passlist.append(self.rebase_pass())
         if optimisation_level > 0:
-            passlist.extend(
-                [
-                    EulerAngleReduction(OpType.Rx, OpType.Rz),
-                    SimplifyInitial(
-                        allow_classical=False, create_all_qubits=True, xcirc=_xcirc
-                    ),
-                ]
+            passlist.append(
+                EulerAngleReduction(OpType.Rx, OpType.Rz),
             )
         return SequencePass(passlist)
 
@@ -193,7 +188,15 @@ class ForestBackend(Backend):
     ) -> List[ResultHandle]:
         """
         See :py:meth:`pytket.backends.Backend.process_circuits`.
-        Supported kwargs: `seed`.
+
+        Supported kwargs:
+
+        * `seed`
+        * `postprocess`: apply end-of-circuit simplifications and classical
+          postprocessing to improve fidelity of results (bool, default False)
+        * `simplify_initial`: apply the pytket ``SimplifyInitial`` pass to improve
+          fidelity of results assuming all qubits initialized to zero (bool, default
+          False)
         """
         circuits = list(circuits)
         n_shots_list = Backend._get_n_shots_as_list(
@@ -204,6 +207,7 @@ class ForestBackend(Backend):
             self._check_all_circuits(circuits)
 
         postprocess = kwargs.get("postprocess", False)
+        simplify_initial = kwargs.get("simplify_initial", False)
 
         handle_list = []
         for circuit, n_shots in zip(circuits, n_shots_list):
@@ -212,6 +216,13 @@ class ForestBackend(Backend):
                 ppcirc_rep = ppcirc.to_dict()
             else:
                 c0, ppcirc_rep = circuit, None
+
+            if simplify_initial:
+                _x_circ = Circuit(1).Rx(1, 0)
+                SimplifyInitial(
+                    allow_classical=False, create_all_qubits=True, xcirc=_x_circ
+                ).apply(circuit)
+
             p, bits = tk_to_pyquil(c0, return_used_bits=True)
             p.wrap_in_numshots_loop(n_shots)
             ex = self._qc.compiler.native_quil_to_executable(p)

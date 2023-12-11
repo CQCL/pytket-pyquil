@@ -1,6 +1,11 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Don’t include :py:class:`SimplifyInitial` in default passes; instead make it an option to ``process_circuits()``.
+
 0.31.0 (November 2023)
 ----------------------
 
