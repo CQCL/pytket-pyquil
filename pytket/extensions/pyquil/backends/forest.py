@@ -46,7 +46,7 @@ from pytket.passes import (
     EulerAngleReduction,
     CXMappingPass,
     auto_rebase_pass,
-    KAKDecomposition
+    KAKDecomposition,
     SequencePass,
     SynthesiseTket,
     DecomposeBoxes,
@@ -167,7 +167,9 @@ class ForestBackend(Backend):
         passlist.append(NaivePlacementPass(self.backend_info.architecture))  # type: ignore
         if optimisation_level == 2:
             # Add some connectivity preserving optimisations after routing.
-            passlist.extend([KAKDecomposition(allow_swaps=False), CliffordSimp(allow_swaps=False)])
+            passlist.extend(
+                [KAKDecomposition(allow_swaps=False), CliffordSimp(allow_swaps=False)]
+            )
         if optimisation_level > 0:
             passlist.append(SynthesiseTket())
         passlist.append(self.rebase_pass())
