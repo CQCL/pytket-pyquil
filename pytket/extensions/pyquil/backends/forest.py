@@ -46,6 +46,7 @@ from pytket.passes import (
     EulerAngleReduction,
     CXMappingPass,
     auto_rebase_pass,
+    KAKDecomposition,
     SequencePass,
     SynthesiseTket,
     DecomposeBoxes,
@@ -165,18 +166,16 @@ class ForestBackend(Backend):
         )
         passlist.append(NaivePlacementPass(self.backend_info.architecture))  # type: ignore
         if optimisation_level == 2:
-            passlist.append(CliffordSimp(False))
+            # Add some connectivity preserving optimisations after routing.
+            passlist.extend(
+                [KAKDecomposition(allow_swaps=False), CliffordSimp(allow_swaps=False)]
+            )
         if optimisation_level > 0:
             passlist.append(SynthesiseTket())
         passlist.append(self.rebase_pass())
         if optimisation_level > 0:
-            passlist.extend(
-                [
-                    EulerAngleReduction(OpType.Rx, OpType.Rz),
-                    SimplifyInitial(
-                        allow_classical=False, create_all_qubits=True, xcirc=_xcirc
-                    ),
-                ]
+            passlist.append(
+                EulerAngleReduction(OpType.Rx, OpType.Rz),
             )
         return SequencePass(passlist)
 
@@ -193,7 +192,15 @@ class ForestBackend(Backend):
     ) -> List[ResultHandle]:
         """
         See :py:meth:`pytket.backends.Backend.process_circuits`.
-        Supported kwargs: `seed`.
+
+        Supported kwargs:
+
+        * `seed`
+        * `postprocess`: apply end-of-circuit simplifications and classical
+          postprocessing to improve fidelity of results (bool, default False)
+        * `simplify_initial`: apply the pytket ``SimplifyInitial`` pass to improve
+          fidelity of results assuming all qubits initialized to zero (bool, default
+          False)
         """
         circuits = list(circuits)
         n_shots_list = Backend._get_n_shots_as_list(
@@ -204,6 +211,7 @@ class ForestBackend(Backend):
             self._check_all_circuits(circuits)
 
         postprocess = kwargs.get("postprocess", False)
+        simplify_initial = kwargs.get("simplify_initial", False)
 
         handle_list = []
         for circuit, n_shots in zip(circuits, n_shots_list):
@@ -212,6 +220,13 @@ class ForestBackend(Backend):
                 ppcirc_rep = ppcirc.to_dict()
             else:
                 c0, ppcirc_rep = circuit, None
+
+            if simplify_initial:
+                _x_circ = Circuit(1).Rx(1, 0)
+                SimplifyInitial(
+                    allow_classical=False, create_all_qubits=True, xcirc=_x_circ
+                ).apply(circuit)
+
             p, bits = tk_to_pyquil(c0, return_used_bits=True)
             p.wrap_in_numshots_loop(n_shots)
             ex = self._qc.compiler.native_quil_to_executable(p)
@@ -285,7 +300,7 @@ class ForestBackend(Backend):
     @classmethod
     def _get_backend_info(cls, qc: QuantumComputer) -> BackendInfo:
         char_dict: dict = process_characterisation(qc)
-        arch = char_dict.get("Architecture", Architecture([]))
+        arch = char_dict.get("Architecture")
         node_errors = char_dict.get("NodeErrors")
         link_errors: dict[tuple[Node, Node], float] = char_dict.get("EdgeErrors")  # type: ignore
         averaged_errors = get_avg_characterisation(char_dict)

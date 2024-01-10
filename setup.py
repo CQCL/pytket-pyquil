@@ -32,7 +32,7 @@ setup(
     author_email="tket-support@cambridgequantum.com",
     python_requires=">=3.8",
     project_urls={
-        "Documentation": "https://tket.quantinuum.com/extensions/pytket-pyquil/api/index.html",
+        "Documentation": "https://tket.quantinuum.com/extensions/pytket-pyquil/index.html",
         "Source": "https://github.com/CQCL/pytket-pyquil",
         "Tracker": "https://github.com/CQCL/pytket-pyquil/issues",
     },
@@ -44,7 +44,7 @@ setup(
     packages=find_namespace_packages(include=["pytket.*"]),
     include_package_data=True,
     install_requires=[
-        "pytket ~= 1.22",
+        "pytket ~= 1.23",
         "pyquil ~= 3.5",
         "typing-extensions ~= 4.2",
     ],
