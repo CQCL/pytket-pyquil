@@ -8,7 +8,7 @@ programs in the Quil language and running them on the Forest platform.
 run on Rigetti backends and simulators, as well as conversion to and from pyQuil
 representations.
 
-``pytket-pyquil`` is available for Python 3.9, 3.10 and 3.11, on Linux, MacOS and
+``pytket-pyquil`` is available for Python 3.10, 3.11 and 3.12, on Linux, MacOS and
 Windows. To install, run:
 
 ::
