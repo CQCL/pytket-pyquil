@@ -276,7 +276,7 @@ def tk_to_pyquil(
                     + qbt.__repr__()
                     + " after measurement"
                 )
-            bit = command.args[1]
+            bit = Bit(command.args[1])
             b = cregmap[bit.reg_name][bit.index[0]]  # type: ignore
             measures.append(Measurement(qbt, b))  # type: ignore
             measured_qubits.append(qbt)
