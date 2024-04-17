@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Cambridge Quantum Computing
+# Copyright 2019-2024 Quantinuum
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -276,7 +276,7 @@ def tk_to_pyquil(
                     + qbt.__repr__()
                     + " after measurement"
                 )
-            bit = command.args[1]
+            bit = cast(Bit, command.args[1])
             b = cregmap[bit.reg_name][bit.index[0]]  # type: ignore
             measures.append(Measurement(qbt, b))  # type: ignore
             measured_qubits.append(qbt)
