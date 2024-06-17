@@ -1,6 +1,10 @@
 Changelog
 ~~~~~~~~~
 
+0.35.1 (June 2024)
+-------------------
+* Pin tenacity package version to 8.3.0.
+
 0.35.0 (April 2024)
 -------------------
 
