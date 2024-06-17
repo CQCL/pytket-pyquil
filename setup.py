@@ -47,6 +47,7 @@ setup(
         "pytket ~= 1.27",
         "pyquil ~= 3.5",
         "typing-extensions ~= 4.2",
+        "tenacity == 8.3.0",
     ],
     classifiers=[
         "Environment :: Console",
