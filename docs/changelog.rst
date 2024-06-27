@@ -1,10 +1,12 @@
 Changelog
 ~~~~~~~~~
 
-0.36.0 (unreleased)
--------------------
+Unreleased
+----------
 
-* Updated pytket version requirement to 1.30.
+* Update pytket version requirement to 1.30.
+* Update pyquil version requirement to 4.13.
+* Remove upper bounds on dependency versions.
 
 0.35.0 (April 2024)
 -------------------
