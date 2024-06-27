@@ -73,7 +73,6 @@ from pytket.extensions.pyquil.pyquil_convert import (
     tk_to_pyquil,
 )
 from pytket.placement import NoiseAwarePlacement
-from pytket.architecture import Architecture
 from pytket.utils import prepare_circuit
 from pytket.utils.operators import QubitPauliOperator
 from pytket.utils.outcomearray import OutcomeArray
