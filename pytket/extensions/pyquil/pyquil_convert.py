@@ -121,6 +121,12 @@ def param_from_pyquil(p: Union[float, Expression]) -> Expr:
     def to_sympy(e: Any) -> Union[float, int, Expr, Symbol]:
         if isinstance(e, (float, int)):
             return e
+        elif isinstance(e, complex):
+            if abs(e.imag) >= 1e-12:
+                raise NotImplementedError(
+                    "Quil expression could not be converted to a parameter: " + str(e)
+                )
+            return e.real
         elif isinstance(e, MemoryReference):
             return Symbol(e.name)
         elif isinstance(e, Function_):
