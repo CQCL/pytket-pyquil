@@ -183,11 +183,11 @@ def pyquil_to_tk(prog: Program) -> Circuit:
                 raise NotImplementedError(
                     "Operation not supported by tket: " + str(i)
                 ) from error
-            qubits = [qmap[q.index] for q in i.qubits]
+            qubits = [qmap[cast(Qubit_, q).index] for q in i.qubits]
             params: list[Union[Expr, float]] = [param_from_pyquil(p) for p in i.params]  # type: ignore
             tkc.add_gate(optype, params, qubits)
         elif isinstance(i, Measurement):
-            qubit = qmap[i.qubit.index]
+            qubit = qmap[cast(Qubit_, i.qubit).index]
             reg = cregmap[i.classical_reg.name]  # type: ignore
             bit = reg[i.classical_reg.offset]  # type: ignore
             tkc.Measure(qubit, bit)
