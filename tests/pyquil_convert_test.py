@@ -159,8 +159,8 @@ def test_measures_are_last() -> None:
     skip_qvm_tests, reason="Can only run Rigetti QVM if docker is installed"  # type: ignore
 )
 def test_symbolic(qvm) -> None:
-    pi2 = Symbol("pi2")  # type: ignore
-    pi3 = Symbol("pi3")  # type: ignore
+    pi2 = Symbol("pi2")
+    pi3 = Symbol("pi3")
 
     tkc = Circuit(2).Rx(pi2, 1).Rx(-pi3, 1).CX(1, 0)
     RemoveRedundancies().apply(tkc)
