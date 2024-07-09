@@ -207,22 +207,19 @@ def pyquil_to_tk(prog: Program) -> Circuit:
 @overload
 def tk_to_pyquil(
     tkcirc: Circuit, active_reset: bool = False, return_used_bits: Literal[False] = ...
-) -> Program:
-    ...
+) -> Program: ...
 
 
 @overload
 def tk_to_pyquil(
     tkcirc: Circuit, active_reset: bool = False, *, return_used_bits: Literal[True]
-) -> Tuple[Program, List[Bit]]:
-    ...
+) -> Tuple[Program, List[Bit]]: ...
 
 
 @overload
 def tk_to_pyquil(
     tkcirc: Circuit, active_reset: bool, return_used_bits: Literal[True]
-) -> Tuple[Program, List[Bit]]:
-    ...
+) -> Tuple[Program, List[Bit]]: ...
 
 
 def tk_to_pyquil(
