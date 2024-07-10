@@ -7,6 +7,9 @@ with tket, a quantum computing toolkit and optimising compiler developed by Quan
 run on Rigetti backends and simulators, as well as conversion to and from pyQuil
 representations.
 
+Some useful links:
+- [API Documentation](https://tket.quantinuum.com/extensions/pytket-pyquil/)
+
 ## Getting started
 
 `pytket-pyquil` is available for Python 3.10, 3.11 and 3.12, on Linux, MacOS
