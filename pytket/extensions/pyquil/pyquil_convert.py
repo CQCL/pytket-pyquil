@@ -301,11 +301,13 @@ def tk_to_pyquil(
                 "Cannot convert tket Op to pyQuil gate: " + op.get_name()
             ) from error
         params = [param_to_pyquil(p) for p in op.params]
-        if gatetype in  _single_control_gates:
-            g = Gate(gatetype[1:], params, [qubits[1]]).controlled(qubits[0]) # Gate name: X for CX
+        if gatetype in _single_control_gates:
+            g = Gate(gatetype[1:], params, [qubits[1]]).controlled(
+                qubits[0]
+            )  # Gate name: X for CX
         else:
             g = Gate(gatetype, params, qubits)
-        
+
         p += g
     for m in measures:
         p += m
