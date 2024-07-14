@@ -127,12 +127,12 @@ def param_from_pyquil(p: Union[float, Expression]) -> Expr:
         if isinstance(e, (float, int)):
             return e
         elif isinstance(e, MemoryReference):
-            return Symbol(e.name)  # type: ignore
+            return Symbol(e.name)
         elif isinstance(e, Function_):
             if e.name == "SIN":
-                return sin(to_sympy(e.expression))  # type: ignore
+                return sin(to_sympy(e.expression))
             elif e.name == "COS":
-                return cos(to_sympy(e.expression))  # type: ignore
+                return cos(to_sympy(e.expression))
             else:
                 raise NotImplementedError(
                     "Quil expression function "
@@ -155,7 +155,7 @@ def param_from_pyquil(p: Union[float, Expression]) -> Expr:
                 + str(e)
             )
 
-    return to_sympy(p) / pi  # type: ignore
+    return to_sympy(p) / pi
 
 
 def pyquil_to_tk(prog: Program) -> Circuit:
@@ -212,22 +212,19 @@ def pyquil_to_tk(prog: Program) -> Circuit:
 @overload
 def tk_to_pyquil(
     tkcirc: Circuit, active_reset: bool = False, return_used_bits: Literal[False] = ...
-) -> Program:
-    ...
+) -> Program: ...
 
 
 @overload
 def tk_to_pyquil(
     tkcirc: Circuit, active_reset: bool = False, *, return_used_bits: Literal[True]
-) -> Tuple[Program, List[Bit]]:
-    ...
+) -> Tuple[Program, List[Bit]]: ...
 
 
 @overload
 def tk_to_pyquil(
     tkcirc: Circuit, active_reset: bool, return_used_bits: Literal[True]
-) -> Tuple[Program, List[Bit]]:
-    ...
+) -> Tuple[Program, List[Bit]]: ...
 
 
 def tk_to_pyquil(

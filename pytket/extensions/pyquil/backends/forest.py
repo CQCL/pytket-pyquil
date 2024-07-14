@@ -73,7 +73,6 @@ from pytket.extensions.pyquil.pyquil_convert import (
     tk_to_pyquil,
 )
 from pytket.placement import NoiseAwarePlacement
-from pytket.architecture import Architecture
 from pytket.utils import prepare_circuit
 from pytket.utils.operators import QubitPauliOperator
 from pytket.utils.outcomearray import OutcomeArray
@@ -472,7 +471,7 @@ class ForestStateBackend(Backend):
         """
         prog = tk_to_pyquil(state_circuit)
         pauli_sum = PauliSum(
-            [self._gen_PauliTerm(term, coeff) for term, coeff in operator._dict.items()]  # type: ignore
+            [self._gen_PauliTerm(term, coeff) for term, coeff in operator._dict.items()]
         )
         return complex(self._sim.expectation(prog, pauli_sum))
 
