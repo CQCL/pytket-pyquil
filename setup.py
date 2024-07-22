@@ -45,8 +45,8 @@ setup(
     include_package_data=True,
     install_requires=[
         "pytket >= 1.30.0",
-        "pyquil ~= 3.5",
-        "typing-extensions ~= 4.2",
+        "pyquil >= 4.13.0",
+        "typing-extensions >= 4.12.2",
     ],
     classifiers=[
         "Environment :: Console",
