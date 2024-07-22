@@ -510,6 +510,7 @@ def test_process_characterisation(qvm: None, quilc: None) -> None:
 @pytest.mark.skipif(
     skip_qvm_tests, reason="Can only run Rigetti QVM if docker is installed"
 )
+@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-pyquil/issues/93")
 def test_retrieve_available_devices() -> None:
     backend_infos = ForestBackend.available_devices()
     assert len(backend_infos) > 0

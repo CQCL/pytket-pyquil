@@ -227,6 +227,8 @@ class ForestBackend(Backend):
                 ).apply(circuit)
 
             p, bits = tk_to_pyquil(c0, return_used_bits=True)
+            bit_indices = [c0.bits.index(bit) for bit in bits]
+
             p.wrap_in_numshots_loop(n_shots)
             ex = self._qc.compiler.native_quil_to_executable(p)
             qam = self._qc.qam
@@ -237,11 +239,14 @@ class ForestBackend(Backend):
             if measures == 0:
                 self._cache[handle] = {
                     "handle": pyquil_handle,
-                    "c_bits": sorted(bits),
+                    "bit_indices": sorted(bit_indices),
                     "result": self.empty_result(circuit, n_shots=n_shots),
                 }
             else:
-                self._cache[handle] = {"handle": pyquil_handle, "c_bits": sorted(bits)}
+                self._cache[handle] = {
+                    "handle": pyquil_handle,
+                    "bit_indices": sorted(bit_indices),
+                }
             handle_list.append(handle)
         return handle_list
 
@@ -283,12 +288,13 @@ class ForestBackend(Backend):
             raw_shots = self._qc.qam.get_result(pyquil_handle).readout_data["ro"]
             if raw_shots is None:
                 raise ValueError("Could not read job results in memory")
+            # Measurement results are returned even for unmeasured bits, so we
+            # have to filter the shots table:
+            raw_shots = raw_shots[:, self._cache[handle]["bit_indices"]]
             shots = OutcomeArray.from_readouts(raw_shots.tolist())
             ppcirc_rep = json.loads(cast(str, handle[1]))
             ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
-            res = BackendResult(
-                shots=shots, c_bits=self._cache[handle]["c_bits"], ppcirc=ppcirc
-            )
+            res = BackendResult(shots=shots, ppcirc=ppcirc)
             self._cache[handle].update({"result": res})
             return res
 
@@ -319,7 +325,14 @@ class ForestBackend(Backend):
     def available_devices(cls, **kwargs: Any) -> List[BackendInfo]:
         """
         See :py:meth:`pytket.backends.Backend.available_devices`.
-        Supported kwargs: `qpus` (default true), `qvms` (default false).
+
+        Supported kwargs:
+
+        - `qpus` (bool, default True): whether to include QPUs in the list
+        - `qvms` (bool, default False): whether to include QVMs in the list
+        - `timeout` (float, default 10.0) time limit for request, in seconds
+        - `client_configuration` (optional qcs_sdk.QCSClient, defaut None):
+          optional client configuration; if None, a default one will be loaded.
         """
         if "qvms" not in kwargs:
             kwargs["qvms"] = False
