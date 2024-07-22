@@ -325,7 +325,14 @@ class ForestBackend(Backend):
     def available_devices(cls, **kwargs: Any) -> List[BackendInfo]:
         """
         See :py:meth:`pytket.backends.Backend.available_devices`.
-        Supported kwargs: `qpus` (default true), `qvms` (default false).
+
+        Supported kwargs:
+
+        - `qpus` (bool, default True): whether to include QPUs in the list
+        - `qvms` (bool, default False): whether to include QVMs in the list
+        - `timeout` (float, default 10.0) time limit for request, in seconds
+        - `client_configuration` (optional qcs_sdk.QCSClient, defaut None):
+          optional client configuration; if None, a default one will be loaded.
         """
         if "qvms" not in kwargs:
             kwargs["qvms"] = False
