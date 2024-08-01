@@ -1,8 +1,8 @@
 Changelog
 ~~~~~~~~~
 
-Unreleased
-----------
+0.36.0 (July 2024)
+------------------
 
 * Update pytket version requirement to 1.30.
 * Update pyquil version requirement to 4.13.
