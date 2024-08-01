@@ -46,6 +46,7 @@ from pytket.circuit import Circuit
 from pytket.extensions.pyquil import pyquil_to_tk, tk_to_pyquil
 from pytket.extensions.pyquil import ForestStateBackend
 from pytket.passes import RemoveRedundancies
+from pytket.qasm import circuit_from_qasm
 
 skip_qvm_tests = (which("docker") is None) or (platform.system() == "Windows")
 
@@ -130,6 +131,36 @@ def test_from_tket() -> None:
     assert (
         len(p.instructions) == 8
     )  # 5 gates, 2 measures, and an initial declaration of classical register
+
+
+def test_conversion_of_controlled_y() -> None:
+    single_controlled_gates_attributes = [
+        {
+            "name": "Y",
+            "qubits": [0,1]
+        },
+        {
+            "name": "H",
+            "qubits": [1,0]
+        },
+    ]
+    c = Circuit(2,2)
+    c.CY(*single_controlled_gates_attributes[0]["qubits"])
+    c.CH(*single_controlled_gates_attributes[1]["qubits"])
+
+    p = tk_to_pyquil(c)
+    
+    for i, attributes in enumerate(single_controlled_gates_attributes):
+        Instruction = p.instructions[i+1]
+        for attribute in attributes:
+            expected_attribute_value = attributes[attribute]
+            value = getattr(Instruction, attribute)
+            if attribute == "qubits":
+                for i, expected_qubit_index in enumerate(expected_attribute_value):
+                    assert value[i].index == expected_qubit_index
+            else:
+                assert value == expected_attribute_value
+    
 
 
 def test_measure() -> None:
