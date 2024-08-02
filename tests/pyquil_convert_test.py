@@ -46,7 +46,6 @@ from pytket.circuit import Circuit
 from pytket.extensions.pyquil import pyquil_to_tk, tk_to_pyquil
 from pytket.extensions.pyquil import ForestStateBackend
 from pytket.passes import RemoveRedundancies
-from pytket.qasm import circuit_from_qasm
 
 skip_qvm_tests = (which("docker") is None) or (platform.system() == "Windows")
 
