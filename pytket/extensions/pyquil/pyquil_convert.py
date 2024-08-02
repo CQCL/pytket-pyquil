@@ -79,10 +79,7 @@ _known_quil_gate = {
 _known_quil_gate_rev = {v: k for k, v in _known_quil_gate.items()}
 
 # Gates with single controlled operation
-_single_control_gates = {
-    "CH": "H",
-    "CY": "Y"
-}
+_single_control_gates = {"CH": "H", "CY": "Y"}
 
 
 def param_to_pyquil(p: Union[float, Expr]) -> Union[float, Expression]:

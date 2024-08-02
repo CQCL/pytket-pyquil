@@ -135,23 +135,17 @@ def test_from_tket() -> None:
 
 def test_conversion_of_controlled_y() -> None:
     single_controlled_gates_attributes = [
-        {
-            "name": "Y",
-            "qubits": [0,1]
-        },
-        {
-            "name": "H",
-            "qubits": [1,0]
-        },
+        {"name": "Y", "qubits": [0, 1]},
+        {"name": "H", "qubits": [1, 0]},
     ]
-    c = Circuit(2,2)
+    c = Circuit(2, 2)
     c.CY(*single_controlled_gates_attributes[0]["qubits"])
     c.CH(*single_controlled_gates_attributes[1]["qubits"])
 
     p = tk_to_pyquil(c)
-    
+
     for i, attributes in enumerate(single_controlled_gates_attributes):
-        Instruction = p.instructions[i+1]
+        Instruction = p.instructions[i + 1]
         for attribute in attributes:
             expected_attribute_value = attributes[attribute]
             value = getattr(Instruction, attribute)
@@ -160,7 +154,6 @@ def test_conversion_of_controlled_y() -> None:
                     assert value[i].index == expected_qubit_index
             else:
                 assert value == expected_attribute_value
-    
 
 
 def test_measure() -> None:
