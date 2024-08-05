@@ -1,6 +1,12 @@
 Changelog
 ~~~~~~~~~
 
+0.37.0 (August 2024)
+--------------------
+
+* Update pytket version requirement to 1.31.
+* add CH and CY to the supported gateset.
+
 0.36.0 (July 2024)
 ------------------
 
