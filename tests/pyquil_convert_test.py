@@ -138,8 +138,8 @@ def test_conversion_of_controlled_y() -> None:
         {"name": "H", "qubits": [1, 0]},
     ]
     c = Circuit(2, 2)
-    c.CY(*single_controlled_gates_attributes[0]["qubits"])
-    c.CH(*single_controlled_gates_attributes[1]["qubits"])
+    c.CY(*single_controlled_gates_attributes[0]["qubits"])  # type: ignore
+    c.CH(*single_controlled_gates_attributes[1]["qubits"])  # type: ignore
 
     p = tk_to_pyquil(c)
 
