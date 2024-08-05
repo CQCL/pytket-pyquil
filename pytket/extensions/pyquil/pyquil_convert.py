@@ -71,10 +71,15 @@ _known_quil_gate = {
     "PHASE": OpType.U1,
     "SWAP": OpType.SWAP,
     "XY": OpType.ISWAP,
+    "CH": OpType.CH,
+    "CY": OpType.CY,
 }
 
 
 _known_quil_gate_rev = {v: k for k, v in _known_quil_gate.items()}
+
+# Gates with single controlled operation
+_single_control_gates = {"CH": "H", "CY": "Y"}
 
 
 def param_to_pyquil(p: Union[float, Expr]) -> Union[float, Expression]:
@@ -302,7 +307,13 @@ def tk_to_pyquil(
                 "Cannot convert tket Op to pyQuil gate: " + op.get_name()
             ) from error
         params = [param_to_pyquil(p) for p in op.params]
-        g = Gate(gatetype, params, qubits)
+        if gatetype in _single_control_gates:
+            g = Gate(_single_control_gates[gatetype], params, [qubits[1]]).controlled(
+                qubits[0]
+            )
+        else:
+            g = Gate(gatetype, params, qubits)
+
         p += g
     for m in measures:
         p += m
