@@ -18,3 +18,9 @@ Windows. To install, run:
 .. toctree::
     api.rst
     changelog.rst
+
+.. toctree::
+   :caption: Useful links
+
+   Issue tracker <https://github.com/CQCL/pytket-pyquil/issues>
+   PyPi <https://pypi.org/project/pytket-pyquil/>
