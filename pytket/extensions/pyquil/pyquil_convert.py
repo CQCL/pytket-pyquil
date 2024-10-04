@@ -15,44 +15,54 @@
 """Methods to allow conversion between pyQuil and tket data types
 """
 
+import math
 from collections import defaultdict
 from logging import warning
-import math
 from typing import (
     Any,
     Callable,
-    Union,
     Dict,
     List,
     Optional,
     Tuple,
     TypeVar,
+    Union,
     cast,
     overload,
 )
+
+from sympy import Add, Expr, Mul, Number, Pow, Symbol, cos, pi, sin
 from typing_extensions import Literal
 
 from pyquil import Program
 from pyquil.api import QuantumComputer
 from pyquil.external.rpcq import GateInfo, MeasureInfo
 from pyquil.quilatom import (
-    Qubit as Qubit_,
+    Add as Add_,
+)
+from pyquil.quilatom import (
+    Div,
     Expression,
     MemoryReference,
-    quil_sin,
-    quil_cos,
-    Add as Add_,
     Sub,
-    Mul as Mul_,
-    Div,
-    Pow as Pow_,
+    quil_cos,
+    quil_sin,
+)
+from pyquil.quilatom import (
     Function as Function_,
 )
+from pyquil.quilatom import (
+    Mul as Mul_,
+)
+from pyquil.quilatom import (
+    Pow as Pow_,
+)
+from pyquil.quilatom import (
+    Qubit as Qubit_,
+)
 from pyquil.quilbase import Declare, Gate, Halt, Measurement, Pragma
-from sympy import pi, Expr, Symbol, sin, cos, Number, Add, Mul, Pow
-
-from pytket.circuit import Circuit, Node, OpType, Qubit, Bit
 from pytket.architecture import Architecture
+from pytket.circuit import Bit, Circuit, Node, OpType, Qubit
 
 _known_quil_gate = {
     "X": OpType.X,

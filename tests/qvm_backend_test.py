@@ -14,31 +14,31 @@
 
 import json
 import math
+import platform
 from collections import Counter
 from shutil import which
 from time import sleep
-import platform
+from typing import Dict, cast
 
-from typing import cast, Dict
 import docker  # type: ignore
 import numpy as np
-from pyquil import get_qc
 import pytest
 from _pytest.fixtures import FixtureRequest
+from pyquil import get_qc
 
+from pytket.circuit import BasisOrder, Circuit, Node, OpType, Qubit
 from pytket.extensions.pyquil import (
     ForestBackend,
     ForestStateBackend,
     process_characterisation,
 )
-from pytket.circuit import BasisOrder, Circuit, OpType, Qubit, Node
 from pytket.passes import CliffordSimp
 from pytket.pauli import Pauli, QubitPauliString
+from pytket.utils import QubitPauliOperator
 from pytket.utils.expectations import (
     get_operator_expectation_value,
     get_pauli_expectation_value,
 )
-from pytket.utils import QubitPauliOperator
 
 skip_qvm_tests = (which("docker") is None) or (platform.system() == "Windows")
 

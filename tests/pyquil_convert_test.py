@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import platform
 import time
 from shutil import which
-import platform
 
 import docker  # type: ignore
 import numpy as np
@@ -22,29 +22,28 @@ import pytest
 from pyquil import Program
 from pyquil.api import WavefunctionSimulator
 from pyquil.gates import (
-    X,
-    Y,
-    Z,
-    H,
-    S,
-    T,
+    CCNOT,
+    CNOT,
+    CPHASE,
+    CZ,
+    MEASURE,
     RX,
     RY,
     RZ,
-    CZ,
-    CNOT,
-    CCNOT,
-    CPHASE,
     SWAP,
-    MEASURE,
     XY,
+    H,
+    S,
+    T,
+    X,
+    Y,
+    Z,
 )
 from pyquil.quilbase import Measurement
-from sympy import pi, Symbol
+from sympy import Symbol, pi
 
 from pytket.circuit import Circuit
-from pytket.extensions.pyquil import pyquil_to_tk, tk_to_pyquil
-from pytket.extensions.pyquil import ForestStateBackend
+from pytket.extensions.pyquil import ForestStateBackend, pyquil_to_tk, tk_to_pyquil
 from pytket.passes import RemoveRedundancies
 
 skip_qvm_tests = (which("docker") is None) or (platform.system() == "Windows")
