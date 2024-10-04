@@ -21,10 +21,7 @@ from logging import warning
 from typing import (
     Any,
     Callable,
-    Dict,
-    List,
     Optional,
-    Tuple,
     TypeVar,
     Union,
     cast,
@@ -189,7 +186,7 @@ def pyquil_to_tk(prog: Program) -> Circuit:
         uid = Qubit("q", q)  # type: ignore
         tkc.add_qubit(uid)
         qmap.update({q: uid})
-    cregmap: Dict = {}
+    cregmap: dict = {}
     for i in prog.instructions:
         if isinstance(i, Gate):
             try:
@@ -234,18 +231,18 @@ def tk_to_pyquil(
 @overload
 def tk_to_pyquil(
     tkcirc: Circuit, active_reset: bool = False, *, return_used_bits: Literal[True]
-) -> Tuple[Program, List[Bit]]: ...
+) -> tuple[Program, list[Bit]]: ...
 
 
 @overload
 def tk_to_pyquil(
     tkcirc: Circuit, active_reset: bool, return_used_bits: Literal[True]
-) -> Tuple[Program, List[Bit]]: ...
+) -> tuple[Program, list[Bit]]: ...
 
 
 def tk_to_pyquil(
     tkcirc: Circuit, active_reset: bool = False, return_used_bits: bool = False
-) -> Union[Program, Tuple[Program, List[Bit]]]:
+) -> Union[Program, tuple[Program, list[Bit]]]:
     """
        Convert a tket :py:class:`Circuit` to a :py:class:`pyquil.Program` .
 
@@ -263,7 +260,7 @@ def tk_to_pyquil(
         raise NotImplementedError(
             "Cannot convert circuit with multiple quantum registers to pyQuil"
         )
-    creg_sizes: Dict = {}
+    creg_sizes: dict = {}
     for b in tkcirc.bits:
         if len(b.index) != 1:
             raise NotImplementedError("PyQuil registers must use a single index")
@@ -281,8 +278,8 @@ def tk_to_pyquil(
     if active_reset:
         p.reset()
     measures = []
-    measured_qubits: List[Qubit] = []
-    used_bits: List[Bit] = []
+    measured_qubits: list[Qubit] = []
+    used_bits: list[Bit] = []
     for command in tkcirc:
         op = command.op
         optype = op.type
@@ -357,8 +354,8 @@ def process_characterisation(qc: QuantumComputer) -> dict:
     }
     str_to_gate_2qb = {"CZ": OpType.CZ, "XY": OpType.ISWAP}
 
-    link_errors: Dict[Tuple[Node, Node], Dict[OpType, float]] = defaultdict(dict)
-    node_errors: Dict[Node, Dict[OpType, float]] = defaultdict(dict)
+    link_errors: dict[tuple[Node, Node], dict[OpType, float]] = defaultdict(dict)
+    node_errors: dict[Node, dict[OpType, float]] = defaultdict(dict)
     readout_errors: dict = {}
     # T1s and T2s are currently left empty
     t1_times_dict: dict = {}
@@ -448,8 +445,8 @@ def _get_angle_type(angle: Union[float, str]) -> Optional[str]:
 
 
 def get_avg_characterisation(
-    characterisation: Dict[str, Any]
-) -> Dict[str, Dict[Node, float]]:
+    characterisation: dict[str, Any]
+) -> dict[str, dict[Node, float]]:
     """
     Convert gate-specific characterisation into readout, one- and two-qubit errors
 
@@ -460,15 +457,19 @@ def get_avg_characterisation(
     K = TypeVar("K")
     V1 = TypeVar("V1")
     V2 = TypeVar("V2")
-    map_values_t = Callable[[Callable[[V1], V2], Dict[K, V1]], Dict[K, V2]]
-    map_values: map_values_t = lambda f, d: {k: f(v) for k, v in d.items()}
+    Callable[[Callable[[V1], V2], dict[K, V1]], dict[K, V2]]
 
-    node_errors = cast(Dict[Node, Dict[OpType, float]], characterisation["NodeErrors"])
+    def map_values(f, d):
+        return {k: f(v) for k, v in d.items()}
+
+    node_errors = cast(dict[Node, dict[OpType, float]], characterisation["NodeErrors"])
     link_errors = cast(
-        Dict[Tuple[Node, Node], Dict[OpType, float]], characterisation["EdgeErrors"]
+        dict[tuple[Node, Node], dict[OpType, float]], characterisation["EdgeErrors"]
     )
 
-    avg: Callable[[Dict[Any, float]], float] = lambda xs: sum(xs.values()) / len(xs)
+    def avg(xs: dict[Any, float]) -> float:
+        return sum(xs.values()) / len(xs)
+
     avg_node_errors = map_values(avg, node_errors)
     avg_link_errors = map_values(avg, link_errors)
 

@@ -51,7 +51,6 @@ skip_qvm_tests = (which("docker") is None) or (platform.system() == "Windows")
 
 @pytest.fixture(scope="module")
 def qvm(request) -> None:  # type: ignore
-    print("running qvm container")
     dock = docker.from_env()
     container = dock.containers.run(
         image="rigetti/qvm", command="-S", detach=True, ports={5000: 5000}, remove=True

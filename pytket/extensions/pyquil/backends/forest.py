@@ -15,7 +15,7 @@
 import json
 from collections.abc import Iterable, Sequence
 from logging import warning
-from typing import Any, List, Optional, Union, cast
+from typing import Any, Optional, Union, cast
 from uuid import uuid4
 
 import numpy as np
@@ -130,7 +130,7 @@ class ForestBackend(Backend):
         self._backend_info = self._get_backend_info(self._qc)
 
     @property
-    def required_predicates(self) -> List[Predicate]:
+    def required_predicates(self) -> list[Predicate]:
         return [
             NoClassicalControlPredicate(),
             NoFastFeedforwardPredicate(),
@@ -189,7 +189,7 @@ class ForestBackend(Backend):
         n_shots: Union[None, int, Sequence[Optional[int]]] = None,
         valid_check: bool = True,
         **kwargs: KwargTypes,
-    ) -> List[ResultHandle]:
+    ) -> list[ResultHandle]:
         """
         See :py:meth:`pytket.backends.Backend.process_circuits`.
 
@@ -323,7 +323,7 @@ class ForestBackend(Backend):
         )
 
     @classmethod
-    def available_devices(cls, **kwargs: Any) -> List[BackendInfo]:
+    def available_devices(cls, **kwargs: Any) -> list[BackendInfo]:
         """
         See :py:meth:`pytket.backends.Backend.available_devices`.
 
@@ -374,7 +374,7 @@ class ForestStateBackend(Backend):
         self._sim = WavefunctionSimulator()
 
     @property
-    def required_predicates(self) -> List[Predicate]:
+    def required_predicates(self) -> list[Predicate]:
         return [
             NoClassicalControlPredicate(),
             NoFastFeedforwardPredicate(),
@@ -409,7 +409,7 @@ class ForestStateBackend(Backend):
         n_shots: Optional[Union[int, Sequence[int]]] = None,
         valid_check: bool = True,
         **kwargs: KwargTypes,
-    ) -> List[ResultHandle]:
+    ) -> list[ResultHandle]:
         handle_list = []
         if valid_check:
             self._check_all_circuits(circuits)
