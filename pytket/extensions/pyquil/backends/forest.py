@@ -13,22 +13,22 @@
 # limitations under the License.
 
 import json
-from typing import cast, Iterable, List, Optional, Sequence, Union, Any
-from uuid import uuid4
+from collections.abc import Iterable, Sequence
 from logging import warning
+from typing import Any, Optional, Union, cast
+from uuid import uuid4
 
 import numpy as np
+
 from pyquil.api import (
     QuantumComputer,
     WavefunctionSimulator,
-    list_quantum_computers,
     get_qc,
+    list_quantum_computers,
 )
 from pyquil.gates import I
 from pyquil.paulis import ID, PauliSum, PauliTerm
 from pyquil.quilatom import Qubit as Qubit_
-
-from pytket.circuit import Circuit, OpType, Qubit, Node
 from pytket.backends import (
     Backend,
     CircuitNotRunError,
@@ -40,39 +40,40 @@ from pytket.backends.backend import KwargTypes
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.resulthandle import _ResultIdTuple
+from pytket.circuit import Circuit, Node, OpType, Qubit
 from pytket.extensions.pyquil._metadata import __extension_version__
+from pytket.extensions.pyquil.pyquil_convert import (
+    get_avg_characterisation,
+    process_characterisation,
+    tk_to_pyquil,
+)
 from pytket.passes import (
     BasePass,
-    EulerAngleReduction,
-    CXMappingPass,
-    auto_rebase_pass,
-    KAKDecomposition,
-    SequencePass,
-    SynthesiseTket,
-    DecomposeBoxes,
-    FullPeepholeOptimise,
     CliffordSimp,
+    CXMappingPass,
+    DecomposeBoxes,
+    EulerAngleReduction,
     FlattenRegisters,
-    SimplifyInitial,
+    FullPeepholeOptimise,
+    KAKDecomposition,
     NaivePlacementPass,
+    SequencePass,
+    SimplifyInitial,
+    SynthesiseTket,
+    auto_rebase_pass,
 )
 from pytket.pauli import QubitPauliString
+from pytket.placement import NoiseAwarePlacement
 from pytket.predicates import (
-    NoSymbolsPredicate,
     ConnectivityPredicate,
+    DefaultRegisterPredicate,
     GateSetPredicate,
     NoClassicalControlPredicate,
     NoFastFeedforwardPredicate,
     NoMidMeasurePredicate,
-    DefaultRegisterPredicate,
+    NoSymbolsPredicate,
     Predicate,
 )
-from pytket.extensions.pyquil.pyquil_convert import (
-    process_characterisation,
-    get_avg_characterisation,
-    tk_to_pyquil,
-)
-from pytket.placement import NoiseAwarePlacement
 from pytket.utils import prepare_circuit
 from pytket.utils.operators import QubitPauliOperator
 from pytket.utils.outcomearray import OutcomeArray
@@ -129,7 +130,7 @@ class ForestBackend(Backend):
         self._backend_info = self._get_backend_info(self._qc)
 
     @property
-    def required_predicates(self) -> List[Predicate]:
+    def required_predicates(self) -> list[Predicate]:
         return [
             NoClassicalControlPredicate(),
             NoFastFeedforwardPredicate(),
@@ -188,7 +189,7 @@ class ForestBackend(Backend):
         n_shots: Union[None, int, Sequence[Optional[int]]] = None,
         valid_check: bool = True,
         **kwargs: KwargTypes,
-    ) -> List[ResultHandle]:
+    ) -> list[ResultHandle]:
         """
         See :py:meth:`pytket.backends.Backend.process_circuits`.
 
@@ -322,7 +323,7 @@ class ForestBackend(Backend):
         )
 
     @classmethod
-    def available_devices(cls, **kwargs: Any) -> List[BackendInfo]:
+    def available_devices(cls, **kwargs: Any) -> list[BackendInfo]:
         """
         See :py:meth:`pytket.backends.Backend.available_devices`.
 
@@ -373,7 +374,7 @@ class ForestStateBackend(Backend):
         self._sim = WavefunctionSimulator()
 
     @property
-    def required_predicates(self) -> List[Predicate]:
+    def required_predicates(self) -> list[Predicate]:
         return [
             NoClassicalControlPredicate(),
             NoFastFeedforwardPredicate(),
@@ -408,7 +409,7 @@ class ForestStateBackend(Backend):
         n_shots: Optional[Union[int, Sequence[int]]] = None,
         valid_check: bool = True,
         **kwargs: KwargTypes,
-    ) -> List[ResultHandle]:
+    ) -> list[ResultHandle]:
         handle_list = []
         if valid_check:
             self._check_all_circuits(circuits)

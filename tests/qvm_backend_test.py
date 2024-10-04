@@ -14,31 +14,31 @@
 
 import json
 import math
+import platform
 from collections import Counter
 from shutil import which
 from time import sleep
-import platform
+from typing import cast
 
-from typing import cast, Dict
 import docker  # type: ignore
 import numpy as np
-from pyquil import get_qc
 import pytest
 from _pytest.fixtures import FixtureRequest
+from pyquil import get_qc
 
+from pytket.circuit import BasisOrder, Circuit, Node, OpType, Qubit
 from pytket.extensions.pyquil import (
     ForestBackend,
     ForestStateBackend,
     process_characterisation,
 )
-from pytket.circuit import BasisOrder, Circuit, OpType, Qubit, Node
 from pytket.passes import CliffordSimp
 from pytket.pauli import Pauli, QubitPauliString
+from pytket.utils import QubitPauliOperator
 from pytket.utils.expectations import (
     get_operator_expectation_value,
     get_pauli_expectation_value,
 )
-from pytket.utils import QubitPauliOperator
 
 skip_qvm_tests = (which("docker") is None) or (platform.system() == "Windows")
 
@@ -152,8 +152,8 @@ def test_backendinfo(qvm: None, quilc: None) -> None:
     qc = get_qc("9q-square", as_qvm=True)
     b = ForestBackend(qc)
     bi = b.backend_info
-    node_gate_errors = cast(Dict, bi.all_node_gate_errors)
-    edge_gate_errors = cast(Dict, bi.all_edge_gate_errors)
+    node_gate_errors = cast(dict, bi.all_node_gate_errors)
+    edge_gate_errors = cast(dict, bi.all_edge_gate_errors)
 
     assert bi
     assert len(node_gate_errors) == 9
@@ -219,7 +219,7 @@ def test_counts(qvm: None, quilc: None) -> None:
     b = ForestBackend(qc)
     c = b.get_compiled_circuit(c)
     counts = b.run_circuit(c, n_shots=10).get_counts()
-    assert all(x[0] == x[1] for x in counts.keys())
+    assert all(x[0] == x[1] for x in counts)
 
 
 @pytest.mark.skipif(
