@@ -44,7 +44,7 @@ setup(
     packages=find_namespace_packages(include=["pytket.*"]),
     include_package_data=True,
     install_requires=[
-        "pytket >= 1.33.0",
+        "pytket >= 1.35.0",
         "pyquil >= 4.13.0",
         "typing-extensions >= 4.12.2",
     ],
