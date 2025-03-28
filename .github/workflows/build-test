@@ -33,7 +33,7 @@ ARTIFACTSDIR=${GITHUB_WORKSPACE}/wheelhouse
 rm -rf ${ARTIFACTSDIR} && mkdir ${ARTIFACTSDIR}
 
 python -m pip install --upgrade pip wheel build
-
+python -m pip install qcs-sdk-python==0.20.1
 # Generate and install the package
 python -m build
 for w in dist/*.whl ; do
