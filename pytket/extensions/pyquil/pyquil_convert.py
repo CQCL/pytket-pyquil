@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Methods to allow conversion between pyQuil and tket data types
-"""
+"""Methods to allow conversion between pyQuil and tket data types"""
 
 from collections import defaultdict
 from logging import warning
@@ -438,7 +437,7 @@ def _get_angle_type(angle: Union[float, str]) -> Optional[str]:
 
 
 def get_avg_characterisation(
-    characterisation: Dict[str, Any]
+    characterisation: Dict[str, Any],
 ) -> Dict[str, Dict[Node, float]]:
     """
     Convert gate-specific characterisation into readout, one- and two-qubit errors

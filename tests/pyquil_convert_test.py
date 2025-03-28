@@ -102,9 +102,9 @@ def adjust_for_relative_phase(state0, state1) -> tuple:  # type: ignore
 
 
 @pytest.mark.skipif(
-    skip_qvm_tests, reason="Can only run Rigetti QVM if docker is installed"  # type: ignore
+    skip_qvm_tests, reason="Can only run Rigetti QVM if docker is installed"
 )
-def test_convert(qvm):
+def test_convert(qvm):  # type: ignore
     wf_sim = WavefunctionSimulator()
     p = get_test_program()
     initial_wf = wf_sim.wavefunction(p)
@@ -179,9 +179,9 @@ def test_measures_are_last() -> None:
 
 
 @pytest.mark.skipif(
-    skip_qvm_tests, reason="Can only run Rigetti QVM if docker is installed"  # type: ignore
+    skip_qvm_tests, reason="Can only run Rigetti QVM if docker is installed"
 )
-def test_symbolic(qvm) -> None:
+def test_symbolic(qvm) -> None:  # type: ignore
     pi2 = Symbol("pi2")
     pi3 = Symbol("pi3")
 
