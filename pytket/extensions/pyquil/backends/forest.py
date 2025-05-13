@@ -13,22 +13,22 @@
 # limitations under the License.
 
 import json
-from typing import cast, Iterable, List, Optional, Sequence, Union, Any
-from uuid import uuid4
+from collections.abc import Iterable, Sequence
 from logging import warning
+from typing import Any, cast
+from uuid import uuid4
 
 import numpy as np
+
 from pyquil.api import (
     QuantumComputer,
     WavefunctionSimulator,
-    list_quantum_computers,
     get_qc,
+    list_quantum_computers,
 )
 from pyquil.gates import I
 from pyquil.paulis import ID, PauliSum, PauliTerm
 from pyquil.quilatom import Qubit as Qubit_
-
-from pytket.circuit import Circuit, OpType, Qubit, Node
 from pytket.backends import (
     Backend,
     CircuitNotRunError,
@@ -40,39 +40,40 @@ from pytket.backends.backend import KwargTypes
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.resulthandle import _ResultIdTuple
+from pytket.circuit import Circuit, Node, OpType, Qubit
 from pytket.extensions.pyquil._metadata import __extension_version__
+from pytket.extensions.pyquil.pyquil_convert import (
+    get_avg_characterisation,
+    process_characterisation,
+    tk_to_pyquil,
+)
 from pytket.passes import (
-    BasePass,
-    EulerAngleReduction,
-    CXMappingPass,
     AutoRebase,
-    KAKDecomposition,
-    SequencePass,
-    SynthesiseTket,
-    DecomposeBoxes,
-    FullPeepholeOptimise,
+    BasePass,
     CliffordSimp,
+    CXMappingPass,
+    DecomposeBoxes,
+    EulerAngleReduction,
     FlattenRegisters,
-    SimplifyInitial,
+    FullPeepholeOptimise,
+    KAKDecomposition,
     NaivePlacementPass,
+    SequencePass,
+    SimplifyInitial,
+    SynthesiseTket,
 )
 from pytket.pauli import QubitPauliString
+from pytket.placement import NoiseAwarePlacement
 from pytket.predicates import (
-    NoSymbolsPredicate,
     ConnectivityPredicate,
+    DefaultRegisterPredicate,
     GateSetPredicate,
     NoClassicalControlPredicate,
     NoFastFeedforwardPredicate,
     NoMidMeasurePredicate,
-    DefaultRegisterPredicate,
+    NoSymbolsPredicate,
     Predicate,
 )
-from pytket.extensions.pyquil.pyquil_convert import (
-    process_characterisation,
-    get_avg_characterisation,
-    tk_to_pyquil,
-)
-from pytket.placement import NoiseAwarePlacement
 from pytket.utils import prepare_circuit
 from pytket.utils.operators import QubitPauliOperator
 from pytket.utils.outcomearray import OutcomeArray
@@ -108,7 +109,7 @@ class ForestBackend(Backend):
     _supports_counts = True
     _supports_contextual_optimisation = True
     _persistent_handles = True
-    _GATE_SET = {
+    _GATE_SET = {  # noqa: RUF012
         OpType.CZ,
         OpType.Rx,
         OpType.Rz,
@@ -129,7 +130,7 @@ class ForestBackend(Backend):
         self._backend_info = self._get_backend_info(self._qc)
 
     @property
-    def required_predicates(self) -> List[Predicate]:
+    def required_predicates(self) -> list[Predicate]:
         return [
             NoClassicalControlPredicate(),
             NoFastFeedforwardPredicate(),
@@ -149,7 +150,7 @@ class ForestBackend(Backend):
         ]
         if optimisation_level == 1:
             passlist.append(SynthesiseTket())
-        elif optimisation_level == 2:
+        elif optimisation_level == 2:  # noqa: PLR2004
             passlist.append(FullPeepholeOptimise())
         passlist.append(
             CXMappingPass(
@@ -164,7 +165,7 @@ class ForestBackend(Backend):
             )
         )
         passlist.append(NaivePlacementPass(self.backend_info.architecture))  # type: ignore
-        if optimisation_level == 2:
+        if optimisation_level == 2:  # noqa: PLR2004
             # Add some connectivity preserving optimisations after routing.
             passlist.extend(
                 [KAKDecomposition(allow_swaps=False), CliffordSimp(allow_swaps=False)]
@@ -185,10 +186,10 @@ class ForestBackend(Backend):
     def process_circuits(
         self,
         circuits: Sequence[Circuit],
-        n_shots: Union[None, int, Sequence[Optional[int]]] = None,
+        n_shots: None | int | Sequence[int | None] = None,
         valid_check: bool = True,
         **kwargs: KwargTypes,
-    ) -> List[ResultHandle]:
+    ) -> list[ResultHandle]:
         """
         See :py:meth:`pytket.backends.Backend.process_circuits`.
 
@@ -202,7 +203,7 @@ class ForestBackend(Backend):
           False)
         """
         circuits = list(circuits)
-        n_shots_list = Backend._get_n_shots_as_list(
+        n_shots_list = Backend._get_n_shots_as_list(  # noqa: SLF001
             n_shots, len(circuits), optional=False
         )
 
@@ -213,7 +214,7 @@ class ForestBackend(Backend):
         simplify_initial = kwargs.get("simplify_initial", False)
 
         handle_list = []
-        for circuit, n_shots in zip(circuits, n_shots_list):
+        for circuit, n_shots in zip(circuits, n_shots_list, strict=False):  # noqa: PLR1704
             if postprocess:
                 c0, ppcirc = prepare_circuit(circuit, allow_classical=False)
                 ppcirc_rep = ppcirc.to_dict()
@@ -270,7 +271,7 @@ class ForestBackend(Backend):
         if handle in self._cache:
             # retrieving status is not supported yet
             # see https://github.com/rigetti/pyquil/issues/1370
-            raise PyQuilJobStatusUnavailable()
+            raise PyQuilJobStatusUnavailable
         raise CircuitNotRunError(handle)
 
     def get_result(self, handle: ResultHandle, **kwargs: KwargTypes) -> BackendResult:
@@ -282,17 +283,17 @@ class ForestBackend(Backend):
             return super().get_result(handle)
         except CircuitNotRunError:
             if handle not in self._cache:
-                raise CircuitNotRunError(handle)
+                raise CircuitNotRunError(handle)  # noqa: B904
 
             pyquil_handle = self._cache[handle]["handle"]
             raw_shots = self._qc.qam.get_result(pyquil_handle).readout_data["ro"]
             if raw_shots is None:
-                raise ValueError("Could not read job results in memory")
+                raise ValueError("Could not read job results in memory")  # noqa: B904
             # Measurement results are returned even for unmeasured bits, so we
             # have to filter the shots table:
             raw_shots = raw_shots[:, self._cache[handle]["bit_indices"]]
             shots = OutcomeArray.from_readouts(raw_shots.tolist())
-            ppcirc_rep = json.loads(cast(str, handle[1]))
+            ppcirc_rep = json.loads(cast("str", handle[1]))
             ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
             res = BackendResult(shots=shots, ppcirc=ppcirc)
             self._cache[handle].update({"result": res})
@@ -322,7 +323,7 @@ class ForestBackend(Backend):
         )
 
     @classmethod
-    def available_devices(cls, **kwargs: Any) -> List[BackendInfo]:
+    def available_devices(cls, **kwargs: Any) -> list[BackendInfo]:
         """
         See :py:meth:`pytket.backends.Backend.available_devices`.
 
@@ -349,7 +350,7 @@ class ForestStateBackend(Backend):
     _supports_expectation = True
     _expectation_allows_nonhermitian = False
     _persistent_handles = False
-    _GATE_SET = {
+    _GATE_SET = {  # noqa: RUF012
         OpType.X,
         OpType.Y,
         OpType.Z,
@@ -373,7 +374,7 @@ class ForestStateBackend(Backend):
         self._sim = WavefunctionSimulator()
 
     @property
-    def required_predicates(self) -> List[Predicate]:
+    def required_predicates(self) -> list[Predicate]:
         return [
             NoClassicalControlPredicate(),
             NoFastFeedforwardPredicate(),
@@ -391,7 +392,7 @@ class ForestStateBackend(Backend):
         passlist = [DecomposeBoxes(), FlattenRegisters()]
         if optimisation_level == 1:
             passlist.append(SynthesiseTket())
-        elif optimisation_level == 2:
+        elif optimisation_level == 2:  # noqa: PLR2004
             passlist.append(FullPeepholeOptimise())
         passlist.append(self.rebase_pass())
         if optimisation_level > 0:
@@ -405,10 +406,10 @@ class ForestStateBackend(Backend):
     def process_circuits(
         self,
         circuits: Iterable[Circuit],
-        n_shots: Optional[Union[int, Sequence[int]]] = None,
+        n_shots: int | Sequence[int] | None = None,
         valid_check: bool = True,
         **kwargs: KwargTypes,
-    ) -> List[ResultHandle]:
+    ) -> list[ResultHandle]:
         handle_list = []
         if valid_check:
             self._check_all_circuits(circuits)
@@ -426,7 +427,7 @@ class ForestStateBackend(Backend):
                 coeff = np.exp(phase * np.pi * 1j)
                 state *= coeff
             except ValueError:
-                warning(
+                warning(  # noqa: LOG015
                     "Global phase is dependent on a symbolic parameter, so cannot "
                     "adjust for phase"
                 )
@@ -484,7 +485,7 @@ class ForestStateBackend(Backend):
         """
         prog = tk_to_pyquil(state_circuit)
         pauli_sum = PauliSum(
-            [self._gen_PauliTerm(term, coeff) for term, coeff in operator._dict.items()]
+            [self._gen_PauliTerm(term, coeff) for term, coeff in operator._dict.items()]  # noqa: SLF001
         )
         return complex(self._sim.expectation(prog, pauli_sum))
 

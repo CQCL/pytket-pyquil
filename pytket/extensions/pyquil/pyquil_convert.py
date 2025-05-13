@@ -14,44 +14,49 @@
 
 """Methods to allow conversion between pyQuil and tket data types"""
 
-from collections import defaultdict
-from logging import warning
 import math
+from collections import defaultdict
+from collections.abc import Callable
+from logging import warning
 from typing import (
     Any,
-    Callable,
-    Union,
-    Dict,
-    List,
-    Optional,
-    Tuple,
+    Literal,
     TypeVar,
     cast,
     overload,
 )
-from typing_extensions import Literal
+
+from sympy import Add, Expr, Mul, Number, Pow, Symbol, cos, pi, sin
 
 from pyquil import Program
 from pyquil.api import QuantumComputer
 from pyquil.external.rpcq import GateInfo, MeasureInfo
 from pyquil.quilatom import (
-    Qubit as Qubit_,
+    Add as Add_,
+)
+from pyquil.quilatom import (
+    Div,
     Expression,
     MemoryReference,
-    quil_sin,
-    quil_cos,
-    Add as Add_,
     Sub,
-    Mul as Mul_,
-    Div,
-    Pow as Pow_,
+    quil_cos,
+    quil_sin,
+)
+from pyquil.quilatom import (
     Function as Function_,
 )
+from pyquil.quilatom import (
+    Mul as Mul_,
+)
+from pyquil.quilatom import (
+    Pow as Pow_,
+)
+from pyquil.quilatom import (
+    Qubit as Qubit_,
+)
 from pyquil.quilbase import Declare, Gate, Halt, Measurement, Pragma
-from sympy import pi, Expr, Symbol, sin, cos, Number, Add, Mul, Pow
-
-from pytket.circuit import Circuit, Node, OpType, Qubit, Bit
 from pytket.architecture import Architecture
+from pytket.circuit import Bit, Circuit, Node, OpType, Qubit
 
 _known_quil_gate = {
     "X": OpType.X,
@@ -81,84 +86,80 @@ _known_quil_gate_rev = {v: k for k, v in _known_quil_gate.items()}
 _single_control_gates = {"CH": "H", "CY": "Y"}
 
 
-def param_to_pyquil(p: Union[float, Expr]) -> Union[float, Expression]:
+def param_to_pyquil(p: float | Expr) -> float | Expression:
     ppi = p * pi
     if len(ppi.free_symbols) == 0:
         return float(ppi.evalf())
-    else:
 
-        def to_pyquil(e: Expr) -> Union[float, Expression]:  # type: ignore
-            if isinstance(e, Number):
-                return float(e)
-            elif isinstance(e, Symbol):
-                return MemoryReference(str(e))
-            elif isinstance(e, sin):
-                return quil_sin(to_pyquil(e))
-            elif isinstance(e, cos):
-                return quil_cos(to_pyquil(e))
-            elif isinstance(e, Add):
-                args = [to_pyquil(a) for a in e.args]
-                acc = args[0]
-                for a in args[1:]:
-                    acc += a
-                return acc
-            elif isinstance(e, Mul):
-                args = [to_pyquil(a) for a in e.args]
-                acc = args[0]
-                for a in args[1:]:
-                    acc *= a
-                return acc
-            elif isinstance(e, Pow):
-                args = Pow_(to_pyquil(e.base), to_pyquil(e.exp))  # type: ignore
-            elif e == pi:
-                return math.pi
-            else:
-                raise NotImplementedError(
-                    "Sympy expression could not be converted to a Quil expression: "
-                    + str(e)
-                )
+    def to_pyquil(e: Expr) -> float | Expression:  # type: ignore  # noqa: PLR0911
+        if isinstance(e, Number):
+            return float(e)
+        if isinstance(e, Symbol):
+            return MemoryReference(str(e))
+        if isinstance(e, sin):
+            return quil_sin(to_pyquil(e))
+        if isinstance(e, cos):
+            return quil_cos(to_pyquil(e))
+        if isinstance(e, Add):
+            args = [to_pyquil(a) for a in e.args]
+            acc = args[0]
+            for a in args[1:]:
+                acc += a
+            return acc
+        if isinstance(e, Mul):
+            args = [to_pyquil(a) for a in e.args]
+            acc = args[0]
+            for a in args[1:]:
+                acc *= a
+            return acc
+        if isinstance(e, Pow):
+            args = Pow_(to_pyquil(e.base), to_pyquil(e.exp))  # type: ignore  # noqa: RET503
+        elif e == pi:
+            return math.pi
+        else:
+            raise NotImplementedError(
+                "Sympy expression could not be converted to a Quil expression: "
+                + str(e)
+            )
 
-        return to_pyquil(ppi)
+    return to_pyquil(ppi)
 
 
-def param_from_pyquil(p: Union[float, Expression]) -> Expr:
-    def to_sympy(e: Any) -> Union[float, int, Expr, Symbol]:
-        if isinstance(e, (float, int)):
+def param_from_pyquil(p: float | Expression) -> Expr:
+    def to_sympy(e: Any) -> float | int | Expr | Symbol:  # noqa: PLR0911
+        if isinstance(e, (float, int)):  # noqa: UP038
             return e
-        elif isinstance(e, complex):
-            if abs(e.imag) >= 1e-12:
+        if isinstance(e, complex):
+            if abs(e.imag) >= 1e-12:  # noqa: PLR2004
                 raise NotImplementedError(
                     "Quil expression could not be converted to a parameter: " + str(e)
                 )
             return e.real
-        elif isinstance(e, MemoryReference):
+        if isinstance(e, MemoryReference):
             return Symbol(e.name)
-        elif isinstance(e, Function_):
+        if isinstance(e, Function_):
             if e.name == "SIN":
                 return sin(to_sympy(e.expression))
-            elif e.name == "COS":
+            if e.name == "COS":
                 return cos(to_sympy(e.expression))
-            else:
-                raise NotImplementedError(
-                    "Quil expression function "
-                    + e.name
-                    + " cannot be converted to a sympy expression"
-                )
-        elif isinstance(e, Add_):
-            return to_sympy(e.op1) + to_sympy(e.op2)
-        elif isinstance(e, Sub):
-            return to_sympy(e.op1) - to_sympy(e.op2)
-        elif isinstance(e, Mul_):
-            return to_sympy(e.op1) * to_sympy(e.op2)
-        elif isinstance(e, Div):
-            return to_sympy(e.op1) / to_sympy(e.op2)
-        elif isinstance(e, Pow_):
-            return to_sympy(e.op1) ** to_sympy(e.op2)
-        else:
             raise NotImplementedError(
-                "Quil expression could not be converted to a sympy expression: "
-                + str(e)
+                "Quil expression function "
+                + e.name
+                + " cannot be converted to a sympy expression"
             )
+        if isinstance(e, Add_):
+            return to_sympy(e.op1) + to_sympy(e.op2)
+        if isinstance(e, Sub):
+            return to_sympy(e.op1) - to_sympy(e.op2)
+        if isinstance(e, Mul_):
+            return to_sympy(e.op1) * to_sympy(e.op2)
+        if isinstance(e, Div):
+            return to_sympy(e.op1) / to_sympy(e.op2)
+        if isinstance(e, Pow_):
+            return to_sympy(e.op1) ** to_sympy(e.op2)
+        raise NotImplementedError(
+            "Quil expression could not be converted to a sympy expression: " + str(e)
+        )
 
     return to_sympy(p) / pi
 
@@ -178,7 +179,7 @@ def pyquil_to_tk(prog: Program) -> Circuit:
         uid = Qubit("q", q)  # type: ignore
         tkc.add_qubit(uid)
         qmap.update({q: uid})
-    cregmap: Dict = {}
+    cregmap: dict = {}
     for i in prog.instructions:
         if isinstance(i, Gate):
             try:
@@ -187,11 +188,11 @@ def pyquil_to_tk(prog: Program) -> Circuit:
                 raise NotImplementedError(
                     "Operation not supported by tket: " + str(i)
                 ) from error
-            qubits = [qmap[cast(Qubit_, q).index] for q in i.qubits]
-            params: list[Union[Expr, float]] = [param_from_pyquil(p) for p in i.params]  # type: ignore
+            qubits = [qmap[cast("Qubit_", q).index] for q in i.qubits]
+            params: list[Expr | float] = [param_from_pyquil(p) for p in i.params]  # type: ignore
             tkc.add_gate(optype, params, qubits)
         elif isinstance(i, Measurement):
-            qubit = qmap[cast(Qubit_, i.qubit).index]
+            qubit = qmap[cast("Qubit_", i.qubit).index]
             reg = cregmap[i.classical_reg.name]  # type: ignore
             bit = reg[i.classical_reg.offset]  # type: ignore
             tkc.Measure(qubit, bit)
@@ -223,18 +224,18 @@ def tk_to_pyquil(
 @overload
 def tk_to_pyquil(
     tkcirc: Circuit, active_reset: bool = False, *, return_used_bits: Literal[True]
-) -> Tuple[Program, List[Bit]]: ...
+) -> tuple[Program, list[Bit]]: ...
 
 
 @overload
 def tk_to_pyquil(
     tkcirc: Circuit, active_reset: bool, return_used_bits: Literal[True]
-) -> Tuple[Program, List[Bit]]: ...
+) -> tuple[Program, list[Bit]]: ...
 
 
-def tk_to_pyquil(
+def tk_to_pyquil(  # noqa: PLR0912, PLR0915
     tkcirc: Circuit, active_reset: bool = False, return_used_bits: bool = False
-) -> Union[Program, Tuple[Program, List[Bit]]]:
+) -> Program | tuple[Program, list[Bit]]:
     """
        Convert a tket :py:class:`Circuit` to a :py:class:`pyquil.Program` .
 
@@ -252,7 +253,7 @@ def tk_to_pyquil(
         raise NotImplementedError(
             "Cannot convert circuit with multiple quantum registers to pyQuil"
         )
-    creg_sizes: Dict = {}
+    creg_sizes: dict = {}
     for b in tkcirc.bits:
         if len(b.index) != 1:
             raise NotImplementedError("PyQuil registers must use a single index")
@@ -270,8 +271,8 @@ def tk_to_pyquil(
     if active_reset:
         p.reset()
     measures = []
-    measured_qubits: List[Qubit] = []
-    used_bits: List[Bit] = []
+    measured_qubits: list[Qubit] = []
+    used_bits: list[Bit] = []
     for command in tkcirc:
         op = command.op
         optype = op.type
@@ -283,13 +284,13 @@ def tk_to_pyquil(
                     + qbt.__repr__()
                     + " after measurement"
                 )
-            bit = cast(Bit, command.args[1])
+            bit = cast("Bit", command.args[1])
             b = cregmap[bit.reg_name][bit.index[0]]  # type: ignore
             measures.append(Measurement(qbt, b))  # type: ignore
             measured_qubits.append(qbt)
             used_bits.append(bit)
             continue
-        elif optype == OpType.Barrier:
+        if optype == OpType.Barrier:
             continue  # pyQuil cannot handle barriers
         qubits = [Qubit_(qb.index[0]) for qb in command.args]
         for qbt in qubits:  # type: ignore
@@ -321,7 +322,7 @@ def tk_to_pyquil(
     return p
 
 
-def process_characterisation(qc: QuantumComputer) -> dict:
+def process_characterisation(qc: QuantumComputer) -> dict:  # noqa: PLR0912, PLR0915
     """Convert a :py:class:`pyquil.api.QuantumComputer` to a dictionary containing
     Rigetti device Characteristics
 
@@ -346,8 +347,8 @@ def process_characterisation(qc: QuantumComputer) -> dict:
     }
     str_to_gate_2qb = {"CZ": OpType.CZ, "XY": OpType.ISWAP}
 
-    link_errors: Dict[Tuple[Node, Node], Dict[OpType, float]] = defaultdict(dict)
-    node_errors: Dict[Node, Dict[OpType, float]] = defaultdict(dict)
+    link_errors: dict[tuple[Node, Node], dict[OpType, float]] = defaultdict(dict)
+    node_errors: dict[Node, dict[OpType, float]] = defaultdict(dict)
     readout_errors: dict = {}
     # T1s and T2s are currently left empty
     t1_times_dict: dict = {}
@@ -364,18 +365,18 @@ def process_characterisation(qc: QuantumComputer) -> dict:
                     try:
                         optype = str_to_gate_1qb[g.operator][angle]
                     except KeyError:
-                        warning(
-                            f"Ignoring unrecognised angle {g.parameters[0]} "
+                        warning(  # noqa: LOG015
+                            f"Ignoring unrecognised angle {g.parameters[0]} "  # noqa: G004
                             f"for gate {g.operator}. This may mean that some "
                             "hardware-supported gates won't be used."
                         )
                         continue
                     if node in node_errors and optype in node_errors[node]:
-                        if abs(1.0 - g.fidelity - node_errors[node][optype]) > 1e-7:
+                        if abs(1.0 - g.fidelity - node_errors[node][optype]) > 1e-7:  # noqa: PLR2004
                             # fidelities for Rx(PI) and Rx(-PI) are given, hopefully
                             # they are always identical
-                            warning(
-                                f"Found two differing fidelities for {optype} on node "
+                            warning(  # noqa: LOG015
+                                f"Found two differing fidelities for {optype} on node "  # noqa: G004
                                 f"{node}, using error = {node_errors[node][optype]}"
                             )
                     else:
@@ -385,9 +386,9 @@ def process_characterisation(qc: QuantumComputer) -> dict:
                 # one with target="_", and one with target=Node
                 # in all pyquil code I have seen, both have the same value
                 if node in readout_errors:
-                    if abs(1.0 - g.fidelity - readout_errors[node]) > 1e-7:
-                        warning(
-                            f"Found two differing readout fidelities for node {node},"
+                    if abs(1.0 - g.fidelity - readout_errors[node]) > 1e-7:  # noqa: PLR2004
+                        warning(  # noqa: LOG015
+                            f"Found two differing readout fidelities for node {node},"  # noqa: G004
                             f" using RO error = {readout_errors[node]}"
                         )
                 else:
@@ -395,7 +396,7 @@ def process_characterisation(qc: QuantumComputer) -> dict:
             elif g.operator == "I":
                 continue
             else:
-                warning(f"Ignoring fidelity for unknown operator {g.operator}")
+                warning(f"Ignoring fidelity for unknown operator {g.operator}")  # noqa: LOG015, G004
 
     for e in isa.edges.values():
         n1, n2 = Node(e.ids[0]), Node(e.ids[1])
@@ -406,11 +407,11 @@ def process_characterisation(qc: QuantumComputer) -> dict:
                 optype = str_to_gate_2qb[g.operator]
                 link_errors[(n1, n2)].update({optype: 1.0 - g.fidelity})
             else:
-                warning(f"Ignoring fidelity for unknown operator {g.operator}")
+                warning(f"Ignoring fidelity for unknown operator {g.operator}")  # noqa: LOG015, G004
 
     arc = Architecture(coupling_map)
 
-    characterisation = dict()
+    characterisation = dict()  # noqa: C408
     characterisation["NodeErrors"] = node_errors
     characterisation["EdgeErrors"] = link_errors  # type: ignore
     characterisation["Architecture"] = arc  # type: ignore
@@ -420,25 +421,24 @@ def process_characterisation(qc: QuantumComputer) -> dict:
     return characterisation
 
 
-def _get_angle_type(angle: Union[float, str]) -> Optional[str]:
+def _get_angle_type(angle: float | str) -> str | None:
     if angle == "theta":
         return "ANY"
-    else:
-        angles = {pi: "PI", pi / 2: "PIHALF", 0: None, -pi / 2: "-PIHALF", -pi: "-PI"}
-        if not isinstance(angle, str):
-            for val, code in angles.items():
-                if abs(angle - val) < 1e-7:
-                    return code
-        warning(
-            f"Ignoring unrecognised angle {angle}. This may mean that some "
-            "hardware-supported gates won't be used."
-        )
-        return None
+    angles = {pi: "PI", pi / 2: "PIHALF", 0: None, -pi / 2: "-PIHALF", -pi: "-PI"}
+    if not isinstance(angle, str):
+        for val, code in angles.items():
+            if abs(angle - val) < 1e-7:  # noqa: PLR2004
+                return code
+    warning(  # noqa: LOG015
+        f"Ignoring unrecognised angle {angle}. This may mean that some "  # noqa: G004
+        "hardware-supported gates won't be used."
+    )
+    return None
 
 
 def get_avg_characterisation(
-    characterisation: Dict[str, Any],
-) -> Dict[str, Dict[Node, float]]:
+    characterisation: dict[str, Any],
+) -> dict[str, dict[Node, float]]:
     """
     Convert gate-specific characterisation into readout, one- and two-qubit errors
 
@@ -449,15 +449,17 @@ def get_avg_characterisation(
     K = TypeVar("K")
     V1 = TypeVar("V1")
     V2 = TypeVar("V2")
-    map_values_t = Callable[[Callable[[V1], V2], Dict[K, V1]], Dict[K, V2]]
+    map_values_t = Callable[[Callable[[V1], V2], dict[K, V1]], dict[K, V2]]
     map_values: map_values_t = lambda f, d: {k: f(v) for k, v in d.items()}
 
-    node_errors = cast(Dict[Node, Dict[OpType, float]], characterisation["NodeErrors"])
+    node_errors = cast(
+        "dict[Node, dict[OpType, float]]", characterisation["NodeErrors"]
+    )
     link_errors = cast(
-        Dict[Tuple[Node, Node], Dict[OpType, float]], characterisation["EdgeErrors"]
+        "dict[tuple[Node, Node], dict[OpType, float]]", characterisation["EdgeErrors"]
     )
 
-    avg: Callable[[Dict[Any, float]], float] = lambda xs: sum(xs.values()) / len(xs)
+    avg: Callable[[dict[Any, float]], float] = lambda xs: sum(xs.values()) / len(xs)
     avg_node_errors = map_values(avg, node_errors)
     avg_link_errors = map_values(avg, link_errors)
 
