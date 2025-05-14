@@ -374,7 +374,7 @@ def test_shots_bits_edgecases(qvm: None, quilc: None) -> None:
             h = forest_backend.process_circuit(c, n_shots)
             res = forest_backend.get_result(h)
 
-            correct_shots = np.zeros((n_shots, n_bits), dtype=int)  # type: ignore
+            correct_shots = np.zeros((n_shots, n_bits), dtype=int)
             correct_shape = (n_shots, n_bits)
             correct_counts = Counter({(0,) * n_bits: n_shots})
             # BackendResult
@@ -408,7 +408,7 @@ def test_gateset(qvm: None, quilc: None) -> None:
     h = forest_backend.process_circuit(c, 10)
     res = forest_backend.get_result(h)
 
-    correct_shots = np.zeros((10, 6), dtype=int)  # type: ignore
+    correct_shots = np.zeros((10, 6), dtype=int)
     correct_counts = Counter({(0,) * 6: 10})
 
     assert np.array_equal(res.get_shots(), correct_shots)
@@ -438,7 +438,7 @@ def test_gateset_ii(qvm: None, quilc: None) -> None:
 
     assert res.get_shots().shape == (10, 6)
     assert (
-        res.get_counts()[(0, 0, 0, 0, 0, 0)] + res.get_counts()[(0, 0, 0, 0, 1, 1)]  # type: ignore
+        res.get_counts()[(0, 0, 0, 0, 0, 0)] + res.get_counts()[(0, 0, 0, 0, 1, 1)]
     ) == 10
 
 
