@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import platform
 import time
 from shutil import which
-import platform
 
 import docker  # type: ignore
 import numpy as np
@@ -22,29 +22,28 @@ import pytest
 from pyquil import Program
 from pyquil.api import WavefunctionSimulator
 from pyquil.gates import (
-    X,
-    Y,
-    Z,
-    H,
-    S,
-    T,
+    CCNOT,
+    CNOT,
+    CPHASE,
+    CZ,
+    MEASURE,
     RX,
     RY,
     RZ,
-    CZ,
-    CNOT,
-    CCNOT,
-    CPHASE,
     SWAP,
-    MEASURE,
     XY,
+    H,
+    S,
+    T,
+    X,
+    Y,
+    Z,
 )
 from pyquil.quilbase import Measurement
-from sympy import pi, Symbol
+from sympy import Symbol, pi
 
 from pytket.circuit import Circuit
-from pytket.extensions.pyquil import pyquil_to_tk, tk_to_pyquil
-from pytket.extensions.pyquil import ForestStateBackend
+from pytket.extensions.pyquil import ForestStateBackend, pyquil_to_tk, tk_to_pyquil
 from pytket.passes import RemoveRedundancies
 
 skip_qvm_tests = (which("docker") is None) or (platform.system() == "Windows")
@@ -52,14 +51,13 @@ skip_qvm_tests = (which("docker") is None) or (platform.system() == "Windows")
 
 @pytest.fixture(scope="module")
 def qvm(request) -> None:  # type: ignore
-    print("running qvm container")
+    print("running qvm container")  # noqa: T201
     dock = docker.from_env()
     container = dock.containers.run(
         image="rigetti/qvm", command="-S", detach=True, ports={5000: 5000}, remove=True
     )
     time.sleep(1)  # Wait for container to start running the server.
     request.addfinalizer(container.stop)
-    return None
 
 
 def get_test_program(measure: bool = False) -> Program:
@@ -93,7 +91,7 @@ def adjust_for_relative_phase(state0, state1) -> tuple:  # type: ignore
     maxval = 0
     phase0 = 1
     phase1 = 1
-    for s0, s1 in zip(state0, state1):
+    for s0, s1 in zip(state0, state1, strict=False):
         if abs(s0) > maxval:
             maxval = abs(s0)
             phase0 = s0 / abs(s0)
@@ -149,7 +147,7 @@ def test_conversion_of_controlled_y() -> None:
             expected_attribute_value = attributes[attribute]
             value = getattr(Instruction, attribute)
             if attribute == "qubits":
-                for i, expected_qubit_index in enumerate(expected_attribute_value):
+                for i, expected_qubit_index in enumerate(expected_attribute_value):  # noqa: PLW2901
                     assert value[i].index == expected_qubit_index
             else:
                 assert value == expected_attribute_value
