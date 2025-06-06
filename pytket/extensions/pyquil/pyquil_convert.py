@@ -166,7 +166,7 @@ def param_from_pyquil(p: float | Expression) -> Expr:
 
 def pyquil_to_tk(prog: Program) -> Circuit:
     """
-    Convert a :py:class:`pyquil.Program` to a tket :py:class:`Circuit` .
+    Convert a :py:class:`pyquil.Program` to a tket :py:class:`~pytket._tket.circuit.Circuit` .
     Note that not all pyQuil operations are currently supported by pytket.
 
     :param prog: A circuit to be converted
@@ -237,7 +237,7 @@ def tk_to_pyquil(  # noqa: PLR0912, PLR0915
     tkcirc: Circuit, active_reset: bool = False, return_used_bits: bool = False
 ) -> Program | tuple[Program, list[Bit]]:
     """
-       Convert a tket :py:class:`Circuit` to a :py:class:`pyquil.Program` .
+       Convert a tket :py:class:`~pytket._tket.circuit.Circuit` to a :py:class:`pyquil.Program` .
 
     :param tkcirc: A circuit to be converted
 
@@ -327,7 +327,6 @@ def process_characterisation(qc: QuantumComputer) -> dict:  # noqa: PLR0912, PLR
     Rigetti device Characteristics
 
     :param qc: A quantum computer to be converted
-    :type qc: QuantumComputer
     :return: A dictionary containing Rigetti device characteristics
     """
     isa = qc.quantum_processor.to_compiler_isa()

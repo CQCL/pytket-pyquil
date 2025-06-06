@@ -123,7 +123,6 @@ class ForestBackend(Backend):
 
         :param qc: The particular QuantumComputer to use. See the pyQuil docs for more
         details.
-        :type qc: QuantumComputer
         """
         super().__init__()
         self._qc: QuantumComputer = qc
@@ -191,7 +190,7 @@ class ForestBackend(Backend):
         **kwargs: KwargTypes,
     ) -> list[ResultHandle]:
         """
-        See :py:meth:`pytket.backends.Backend.process_circuits`.
+        See :py:meth:`pytket.backends.backend.Backend.process_circuits`.
 
         Supported kwargs:
 
@@ -261,10 +260,9 @@ class ForestBackend(Backend):
         job status queries.
 
         :param handle: The handle to the submitted job.
-        :type handle: ResultHandle
         :returns: The status of the submitted job.
         :raises PyQuilJobStatusUnavailable: Cannot retrieve job status.
-        :raises CircuitNotRunError: The handle does not correspond to a valid job.
+        :raises pytket.backends.backend_exceptions.CircuitNotRunError: The handle does not correspond to a valid job.
         """
         if handle in self._cache and "result" in self._cache[handle]:
             return CircuitStatus(StatusEnum.COMPLETED)
@@ -276,7 +274,7 @@ class ForestBackend(Backend):
 
     def get_result(self, handle: ResultHandle, **kwargs: KwargTypes) -> BackendResult:
         """
-        See :py:meth:`pytket.backends.Backend.get_result`.
+        See :py:meth:`pytket.backends.backend.Backend.get_result`.
         Supported kwargs: none.
         """
         try:
@@ -325,7 +323,7 @@ class ForestBackend(Backend):
     @classmethod
     def available_devices(cls, **kwargs: Any) -> list[BackendInfo]:
         """
-        See :py:meth:`pytket.backends.Backend.available_devices`.
+        See :py:meth:`pytket.backends.backend.Backend.available_devices`.
 
         Supported kwargs:
 
@@ -459,11 +457,8 @@ class ForestStateBackend(Backend):
 
         :param state_circuit: Circuit that generates the desired state
             :math:`\\left|\\psi\\right>`.
-        :type state_circuit: Circuit
         :param pauli: Pauli operator
-        :type pauli: QubitPauliString
         :return: :math:`\\left<\\psi | P | \\psi \\right>`
-        :rtype: complex
         """
         prog = tk_to_pyquil(state_circuit)
         pauli_term = self._gen_PauliTerm(pauli)
@@ -477,11 +472,8 @@ class ForestStateBackend(Backend):
 
         :param state_circuit: Circuit that generates the desired state
             :math:`\\left|\\psi\\right>`.
-        :type state_circuit: Circuit
         :param operator: Operator :math:`H`.
-        :type operator: QubitPauliOperator
         :return: :math:`\\left<\\psi | H | \\psi \\right>`
-        :rtype: complex
         """
         prog = tk_to_pyquil(state_circuit)
         pauli_sum = PauliSum(

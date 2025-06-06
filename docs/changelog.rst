@@ -51,7 +51,7 @@ Changelog
 ---------------------
 
 * Updated pytket version requirement to 1.23.
-* Don’t include :py:class:`SimplifyInitial` in default passes; instead make it an option to ``process_circuits()``.
+* Don’t include :py:meth:`pytket.passes.SimplifyInitial` in default passes; instead make it an option to ``process_circuits()``.
 
 0.31.0 (November 2023)
 ----------------------
