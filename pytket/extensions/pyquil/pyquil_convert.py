@@ -111,14 +111,12 @@ def param_to_pyquil(p: float | Expr) -> float | Expression:
                 acc *= a
             return acc
         if isinstance(e, Pow):
-            args = Pow_(to_pyquil(e.base), to_pyquil(e.exp))  # type: ignore  # noqa: RET503
+            args = Pow_(to_pyquil(e.base), to_pyquil(e.exp))  # type: ignore
         elif e == pi:
             return math.pi
-        else:
-            raise NotImplementedError(
-                "Sympy expression could not be converted to a Quil expression: "
-                + str(e)
-            )
+        raise NotImplementedError(
+            "Sympy expression could not be converted to a Quil expression: " + str(e)
+        )
 
     return to_pyquil(ppi)
 
