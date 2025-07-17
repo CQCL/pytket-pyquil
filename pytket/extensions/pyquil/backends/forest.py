@@ -197,7 +197,7 @@ class ForestBackend(Backend):
         * `seed`
         * `postprocess`: apply end-of-circuit simplifications and classical
           postprocessing to improve fidelity of results (bool, default False)
-        * `simplify_initial`: apply the pytket ``SimplifyInitial`` pass to improve
+        * `simplify_initial`: apply the pytket :py:meth:`~pytket.passes.SimplifyInitial` pass to improve
           fidelity of results assuming all qubits initialized to zero (bool, default
           False)
         """
@@ -252,10 +252,10 @@ class ForestBackend(Backend):
 
     def circuit_status(self, handle: ResultHandle) -> CircuitStatus:
         """
-        Return a CircuitStatus reporting the status of the circuit execution
-        corresponding to the ResultHandle.
+        Return a :py:class:`~pytket.backends.status.CircuitStatus` reporting the status of the circuit execution
+        corresponding to the :py:class:`~pytket.backends.resulthandle.ResultHandle`.
 
-        This will throw an PyQuilJobStatusUnavailable exception if the results
+        This will throw an :py:exc:`~.PyQuilJobStatusUnavailable` exception if the results
         have not been retrieved yet, as pyQuil does not currently support asynchronous
         job status queries.
 

@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Methods to allow conversion between pyQuil and tket data types"""
-
 import math
 from collections import defaultdict
 from collections.abc import Callable
@@ -237,7 +235,7 @@ def tk_to_pyquil(  # noqa: PLR0912, PLR0915
     tkcirc: Circuit, active_reset: bool = False, return_used_bits: bool = False
 ) -> Program | tuple[Program, list[Bit]]:
     """
-       Convert a tket :py:class:`~pytket._tket.circuit.Circuit` to a :py:class:`pyquil.Program` .
+    Convert a tket :py:class:`~pytket._tket.circuit.Circuit` to a :py:class:`pyquil.Program` .
 
     :param tkcirc: A circuit to be converted
 
@@ -324,7 +322,7 @@ def tk_to_pyquil(  # noqa: PLR0912, PLR0915
 
 def process_characterisation(qc: QuantumComputer) -> dict:  # noqa: PLR0912, PLR0915
     """Convert a :py:class:`pyquil.api.QuantumComputer` to a dictionary containing
-    Rigetti device Characteristics
+    Rigetti device characteristics
 
     :param qc: A quantum computer to be converted
     :return: A dictionary containing Rigetti device characteristics
@@ -441,8 +439,8 @@ def get_avg_characterisation(
     """
     Convert gate-specific characterisation into readout, one- and two-qubit errors
 
-    Used to convert a typical output from `process_characterisation` into an input
-    noise characterisation for NoiseAwarePlacement
+    Used to convert a typical output from :py:func:`~.process_characterisation` into an input
+    noise characterisation for :py:class:`~pytket.placement.NoiseAwarePlacement`
     """
 
     K = TypeVar("K")
