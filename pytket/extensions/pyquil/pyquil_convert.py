@@ -89,7 +89,7 @@ def param_to_pyquil(p: float | Expr) -> float | Expression:
     if len(ppi.free_symbols) == 0:
         return float(ppi.evalf())
 
-    def to_pyquil(e: Expr) -> float | Expression:  # type: ignore  # noqa: PLR0911
+    def to_pyquil(e: Expr) -> float | Expression:  # noqa: PLR0911
         if isinstance(e, Number):
             return float(e)
         if isinstance(e, Symbol):
