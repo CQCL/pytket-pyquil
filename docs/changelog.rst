@@ -22,7 +22,7 @@ Changelog
 --------------------
 
 * Update pytket version requirement to 1.31.
-* add CH and CY to the supported gateset.
+* Add CH and CY to the supported gateset.
 
 0.36.0 (July 2024)
 ------------------
@@ -51,13 +51,13 @@ Changelog
 ---------------------
 
 * Updated pytket version requirement to 1.23.
-* Don’t include :py:class:`SimplifyInitial` in default passes; instead make it an option to ``process_circuits()``.
+* Don’t include :py:meth:`pytket.passes.SimplifyInitial` in default passes; instead make it an option to :py:meth:`~pytket.backends.backend.Backend.process_circuits`.
 
 0.31.0 (November 2023)
 ----------------------
 
 * Updated pytket version requirement to 1.22.
-* add pyquil.gates.XY to the native gateset
+* Add pyquil.gates.XY to the native gateset
 
 0.30.0 (October 2023)
 ---------------------
@@ -76,7 +76,7 @@ Changelog
 
 * Updated pytket version requirement to 1.9.
 * Change default optimization level in
-  ``default_compilation_pass()`` to 2.
+  :py:meth:`~pytket.backends.backend.Backend.default_compilation_pass` to 2.
 
 0.27.0 (October 2022)
 ---------------------
@@ -133,7 +133,7 @@ Changelog
 0.17.0 (October 2021)
 ---------------------
 
-* Modify `ForestBackend` constructor to accept a `QuantumComputer`.
+* Modify :py:class:`~.ForestBackend` constructor to accept a :py:class:`pyquil.api.QuantumComputer`.
 * Updated pytket version requirement to 0.16.
 
 0.16.0 (September 2021)

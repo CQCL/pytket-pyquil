@@ -12,9 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Backends for connecting to devices and simulators from the Rigetti Forest platform
-directly from pytket
-"""
-
 from .forest import ForestBackend, ForestStateBackend

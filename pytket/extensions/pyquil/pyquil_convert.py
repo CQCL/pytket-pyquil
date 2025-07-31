@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Methods to allow conversion between pyQuil and tket data types"""
-
 import math
 from collections import defaultdict
 from collections.abc import Callable
@@ -91,7 +89,7 @@ def param_to_pyquil(p: float | Expr) -> float | Expression:
     if len(ppi.free_symbols) == 0:
         return float(ppi.evalf())
 
-    def to_pyquil(e: Expr) -> float | Expression:  # type: ignore  # noqa: PLR0911
+    def to_pyquil(e: Expr) -> float | Expression:  # noqa: PLR0911
         if isinstance(e, Number):
             return float(e)
         if isinstance(e, Symbol):
@@ -113,14 +111,12 @@ def param_to_pyquil(p: float | Expr) -> float | Expression:
                 acc *= a
             return acc
         if isinstance(e, Pow):
-            args = Pow_(to_pyquil(e.base), to_pyquil(e.exp))  # type: ignore  # noqa: RET503
+            args = Pow_(to_pyquil(e.base), to_pyquil(e.exp))  # type: ignore
         elif e == pi:
             return math.pi
-        else:
-            raise NotImplementedError(
-                "Sympy expression could not be converted to a Quil expression: "
-                + str(e)
-            )
+        raise NotImplementedError(
+            "Sympy expression could not be converted to a Quil expression: " + str(e)
+        )
 
     return to_pyquil(ppi)
 
@@ -166,7 +162,7 @@ def param_from_pyquil(p: float | Expression) -> Expr:
 
 def pyquil_to_tk(prog: Program) -> Circuit:
     """
-    Convert a :py:class:`pyquil.Program` to a tket :py:class:`Circuit` .
+    Convert a :py:class:`pyquil.Program` to a tket :py:class:`~pytket._tket.circuit.Circuit` .
     Note that not all pyQuil operations are currently supported by pytket.
 
     :param prog: A circuit to be converted
@@ -237,7 +233,7 @@ def tk_to_pyquil(  # noqa: PLR0912, PLR0915
     tkcirc: Circuit, active_reset: bool = False, return_used_bits: bool = False
 ) -> Program | tuple[Program, list[Bit]]:
     """
-       Convert a tket :py:class:`Circuit` to a :py:class:`pyquil.Program` .
+    Convert a tket :py:class:`~pytket._tket.circuit.Circuit` to a :py:class:`pyquil.Program` .
 
     :param tkcirc: A circuit to be converted
 
@@ -324,10 +320,9 @@ def tk_to_pyquil(  # noqa: PLR0912, PLR0915
 
 def process_characterisation(qc: QuantumComputer) -> dict:  # noqa: PLR0912, PLR0915
     """Convert a :py:class:`pyquil.api.QuantumComputer` to a dictionary containing
-    Rigetti device Characteristics
+    Rigetti device characteristics
 
     :param qc: A quantum computer to be converted
-    :type qc: QuantumComputer
     :return: A dictionary containing Rigetti device characteristics
     """
     isa = qc.quantum_processor.to_compiler_isa()
@@ -442,8 +437,8 @@ def get_avg_characterisation(
     """
     Convert gate-specific characterisation into readout, one- and two-qubit errors
 
-    Used to convert a typical output from `process_characterisation` into an input
-    noise characterisation for NoiseAwarePlacement
+    Used to convert a typical output from :py:func:`~.process_characterisation` into an input
+    noise characterisation for :py:class:`~pytket.placement.NoiseAwarePlacement`
     """
 
     K = TypeVar("K")
